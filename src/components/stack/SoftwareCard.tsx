@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { SoftwareItem } from '@/data/software'
 
 interface SoftwareCardProps {
@@ -7,14 +8,14 @@ interface SoftwareCardProps {
 
 function ItemIcon({ icon, image, name }: Pick<SoftwareItem, 'icon' | 'image' | 'name'>) {
   if (icon) return <span className={`${icon} text-xl`} />
-  if (image) return <img src={image} alt={name} loading="lazy" decoding="async" className="w-full h-full object-cover rounded" />
+  if (image) return <Image src={image} alt={name} fill sizes="40px" className="object-cover rounded" />
   return <span className="i-lucide-package text-xl opacity-20 text-muted" />
 }
 
 export default function SoftwareCard({ item }: SoftwareCardProps) {
   const content = (
     <div className="flex items-start gap-3 p-3 bg-card border border-border hover:border-primary transition-all duration-200 group">
-      <div className="w-10 h-10 rounded flex items-center justify-center flex-shrink-0">
+      <div className="relative w-10 h-10 rounded flex items-center justify-center flex-shrink-0">
         <ItemIcon icon={item.icon} image={item.image} name={item.name} />
       </div>
       

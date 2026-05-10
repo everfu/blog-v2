@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import type { PostMetadata } from '@/lib/posts'
 import { formatDate, getCategoryColor } from '@/lib/utils'
 
@@ -38,14 +39,14 @@ export default function PostCardLarge({ post }: PostCardLargeProps) {
 
         {/* 右侧图片区域 */}
         <div className="flex-1 h-full p-4 relative overflow-hidden flex items-center justify-center">
-          <div className="w-full h-full overflow-hidden">
+          <div className="w-full h-full overflow-hidden relative">
             {post.cover ? (
-              <img 
+              <Image
                 src={post.cover} 
                 alt={post.title}
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
               />
             ) : (
               <div className="flex-1 h-full flex items-center justify-center">

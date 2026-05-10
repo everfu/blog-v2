@@ -1,5 +1,6 @@
 import type { AlbumCategory } from '@/types'
 import { cn } from '@/lib/utils'
+import Image from 'next/image'
 
 interface AlbumCardProps {
   category: AlbumCategory
@@ -12,22 +13,24 @@ export default function AlbumCard({ category, onClick, onHover, isBlurred }: Alb
   return (
     <div 
       className={cn(
-        'relative overflow-hidden group cursor-pointer transition-all duration-300',
+        'relative overflow-hidden group cursor-pointer transition-all duration-300 min-h-[120px]',
         isBlurred && 'blur-[5px] scale-[0.98]'
       )}
       onClick={onClick}
       onMouseEnter={onHover}
     >
       {category.image ? (
-        <img 
-          src={category.image} 
-          alt={category.label}
-          loading="lazy"
-          decoding="async"
-          className="w-full h-[120px] object-cover group-hover:scale-105 transition-transform duration-500"
-        />
+        <div className="absolute inset-0 w-full h-full">
+          <Image
+            src={category.image}
+            alt={category.label}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </div>
       ) : (
-        <div className="h-[120px] bg-muted" />
+        <div className="absolute inset-0 bg-muted" />
       )}
       
       <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-all duration-300" />
