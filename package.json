@@ -21,7 +21,7 @@
     "gray-matter": "^4.0.3",
     "next": "16.2.6",
     "next-css-obfuscator": "^2.2.19",
-    "next-mdx-remote": "^5.0.0",
+    "next-mdx-remote": "^6.0.0",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "remark-directive": "^4.0.0",
