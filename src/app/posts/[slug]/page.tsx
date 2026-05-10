@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { format } from 'date-fns'
 import Link from 'next/link'
+import Image from 'next/image'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
@@ -139,13 +140,13 @@ export default async function PostPage({ params }: PageProps) {
             </div>
             {/* Cover Image */}
             {post.cover ? (
-              <div className="hidden md:block w-70 h-40 border border-border flex-shrink-0 bg-card overflow-hidden">
-                <img 
+              <div className="hidden md:block w-70 h-40 border border-border flex-shrink-0 bg-card overflow-hidden relative">
+                <Image
                   src={post.cover} 
                   alt={post.title}
-                  loading="lazy"
-                  decoding="async"
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 0vw, 280px"
+                  className="object-cover"
                 />
               </div>
             ) : (
