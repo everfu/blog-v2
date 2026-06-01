@@ -74,19 +74,20 @@ cube-blog/
 │   │   ├── atom.xml/     # RSS feed
 │   │   └── sitemap.ts    # Sitemap generator
 │   ├── components/       # React components
+│   ├── config/           # Site configuration
 │   ├── data/             # Static data
+│   ├── features/         # Domain logic
 │   ├── lib/              # Utilities
 │   └── types/            # TypeScript types
 ├── content/
 │   └── posts/            # Markdown/MDX posts
-├── blog.config.ts        # Site configuration
 ├── uno.config.ts         # UnoCSS configuration
 └── next.config.js        # Next.js configuration
 ```
 
 ## Configuration
 
-Edit `blog.config.ts` to customize site info:
+Edit `src/config/site.ts` to customize site info:
 
 ```typescript
 export const siteConfig = {
