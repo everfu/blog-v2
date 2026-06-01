@@ -229,7 +229,7 @@ export default function AlbumDetail({ category, onClose }: AlbumDetailProps) {
   const [photoInfoByImage, setPhotoInfoByImage] = useState<Record<string, PhotoInfoState>>({})
   const requestedPhotoInfo = useRef<Set<string>>(new Set())
 
-  const photos = category?.list ?? []
+  const photos = useMemo(() => category?.list ?? [], [category?.list])
 
   const selectedPhoto = photos[selectedPhotoIndex]
   const selectedPhotoInfo = selectedPhoto ? photoInfoByImage[selectedPhoto.image] : undefined

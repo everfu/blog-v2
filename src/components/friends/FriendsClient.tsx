@@ -184,8 +184,8 @@ export default function FriendsClient({ initialData }: FriendsClientProps) {
     }
   }, [initialData, loadFriends])
 
-  const items = data?.items ?? []
-  const sources = data?.sources ?? []
+  const items = useMemo(() => data?.items ?? [], [data?.items])
+  const sources = useMemo(() => data?.sources ?? [], [data?.sources])
 
   const authors = useMemo(() => {
     return Array.from(new Set(items.map(getAuthorLabel))).sort((a, b) => a.localeCompare(b))
