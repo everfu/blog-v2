@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { SectionDivider } from '@/components/common'
-import { siteConfig } from '@/../blog.config'
+import { siteConfig } from '@/config/site'
 
 export default function HeroSection() {
   return (

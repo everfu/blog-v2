@@ -1,11 +1,11 @@
-import { getAllPosts } from '@/lib/posts'
+import { getAllPosts, getMorePosts, getRecentPosts } from '@/features/posts'
 import { PostCardLarge, PostsClient } from '@/components/posts'
 import { SectionDivider } from '@/components/common'
 
 export default function PostsPage() {
   const allPosts = getAllPosts()
-  const recentPosts = allPosts.filter((post) => post.recent === true).slice(0, 3)
-  const allMorePosts = allPosts
+  const recentPosts = getRecentPosts(3)
+  const allMorePosts = getMorePosts()
 
   return (
     <div className="space-y-0">

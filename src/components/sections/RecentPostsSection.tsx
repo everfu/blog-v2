@@ -1,9 +1,9 @@
-import { getAllPosts } from '@/lib/posts'
+import { getRecentPosts } from '@/features/posts'
 import { PostCard } from '@/components/posts'
 import { SectionDivider } from '@/components/common'
 
 export default function RecentPostsSection() {
-  const posts = getAllPosts().filter((item) => item.recent)
+  const posts = getRecentPosts()
 
   return (
     <section>

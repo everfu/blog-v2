@@ -5,13 +5,14 @@ import Image from 'next/image'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
-import { getAllPosts, getPostBySlug } from '@/lib/posts'
+import { getAllPosts, getPostBySlug } from '@/features/posts'
 import { remarkCallout } from '@/lib/remarkCallout'
 import { formatDate, getReadingTime, getCategoryColorWithBorder } from '@/lib/utils'
 import { SectionDivider } from '@/components/common'
 import { mdxComponents } from '@/components/mdx'
 import { Comment } from '@/components/ui'
-import { siteConfig } from '@/../blog.config'
+import { siteConfig } from '@/config/site'
+import { absoluteUrl, toIsoDate } from '@/config/site-utils'
 
 interface PageProps {
   params: Promise<{
@@ -36,8 +37,8 @@ export async function generateMetadata({ params }: PageProps) {
     }
   }
 
-  const postUrl = `${siteConfig.url}/posts/${post.slug}`
-  const ogImage = post.cover || '/og-image.png'
+  const postUrl = absoluteUrl(`/posts/${post.slug}`)
+  const ogImage = absoluteUrl(post.cover || siteConfig.assets.ogImage)
 
   return {
     title: post.title,
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: PageProps) {
       url: postUrl,
       title: post.title,
       description: post.excerpt,
-      publishedTime: new Date(post.date).toISOString(),
+      publishedTime: toIsoDate(post.date),
       authors: [siteConfig.author.name],
       tags: post.tags,
       images: [

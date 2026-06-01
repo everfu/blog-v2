@@ -1,9 +1,14 @@
 import { createClient } from '@liveblocks/client'
 import { createRoomContext } from '@liveblocks/react'
+import { siteConfig } from '@/config/site'
 
-const client = createClient({
-  publicApiKey: process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY!,
-})
+export const isLiveblocksConfigured = Boolean(siteConfig.liveblocks.publicApiKey)
+
+const client = createClient(
+  siteConfig.liveblocks.publicApiKey
+    ? { publicApiKey: siteConfig.liveblocks.publicApiKey }
+    : { publicApiKey: 'pk_dev_disabled' }
+)
 
 export const {
   RoomProvider,

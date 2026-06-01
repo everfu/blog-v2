@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { RoomProvider, useOthers, useSelf } from '@/lib/liveblocks'
+import { RoomProvider, isLiveblocksConfigured, useOthers, useSelf } from '@/lib/liveblocks'
 
 function OnlineCounter() {
   const others = useOthers()
@@ -39,6 +39,10 @@ export default function OnlineCount() {
         - 人在线
       </span>
     )
+  }
+
+  if (!isLiveblocksConfigured) {
+    return null
   }
 
   return (

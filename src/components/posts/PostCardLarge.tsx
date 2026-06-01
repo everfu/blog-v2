@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import type { PostMetadata } from '@/lib/posts'
+import type { PostMetadata } from '@/features/posts'
 import { formatDate, getCategoryColor } from '@/lib/utils'
 
 interface PostCardLargeProps {

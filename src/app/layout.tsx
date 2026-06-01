@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import '@unocss/reset/tailwind.css'
 import './globals.css'
 import { Header, Footer } from '@/components/layout'
-import { siteConfig } from '@/../blog.config'
+import { siteConfig } from '@/config/site'
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -38,8 +38,8 @@ export const metadata: Metadata = {
   alternates: {
     canonical: siteConfig.url,
     types: {
-      'application/atom+xml': `${siteConfig.url}/atom.xml`,
-      'text/x-opml': `${siteConfig.url}/efu.opml`,
+      'application/atom+xml': '/atom.xml',
+      'text/x-opml': '/efu.opml',
     },
   },
   icons: {

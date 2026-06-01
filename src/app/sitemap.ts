@@ -1,13 +1,13 @@
 import { MetadataRoute } from 'next'
-import { getAllPosts } from '@/lib/posts'
-
-const SITE_URL = 'https://blog.efu.me'
+import { siteConfig } from '@/config/site'
+import { absoluteUrl } from '@/config/site-utils'
+import { getAllPosts } from '@/features/posts'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts()
 
   const postUrls = posts.map((post) => ({
-    url: `${SITE_URL}/posts/${post.slug}`,
+    url: absoluteUrl(`/posts/${post.slug}`),
     lastModified: new Date(post.date),
     changeFrequency: 'monthly' as const,
     priority: 0.8,
@@ -15,25 +15,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     {
-      url: SITE_URL,
+      url: siteConfig.url,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1,
     },
     {
-      url: `${SITE_URL}/posts`,
+      url: absoluteUrl('/posts'),
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
-      url: `${SITE_URL}/album`,
+      url: absoluteUrl('/album'),
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,
     },
     {
-      url: `${SITE_URL}/stack`,
+      url: absoluteUrl('/stack'),
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 0.7,

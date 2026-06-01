@@ -7,7 +7,7 @@
     "build": "next build",
     "obfuscate-build": "next build --webpack && next-css-obfuscator",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint ."
   },
   "dependencies": {
     "@liveblocks/client": "^3.19.3",

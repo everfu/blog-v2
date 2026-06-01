@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { PostMetadata } from '@/lib/posts'
+import type { PostMetadata } from '@/features/posts'
 import { formatDate, getCategoryColor } from '@/lib/utils'
 
 interface PostCardSmallProps {
