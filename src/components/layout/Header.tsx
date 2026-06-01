@@ -5,12 +5,19 @@ import { useState, useCallback } from 'react'
 import { SectionDivider } from '@/components/common'
 import Logo from './Logo'
 
-const NAV_ITEMS = [
+type NavItem = {
+  name: string
+  href: string
+  target: '_self' | '_blank'
+}
+
+const NAV_ITEMS: NavItem[] = [
   { name: 'POSTS', href: '/posts', target: '_self' },
   { name: 'STACK', href: '/stack', target: '_self' },
   { name: 'ALBUM', href: '/album', target: '_self' },
-  { name: 'LINKS', href: 'https://efu.me/friends', target: '_blank' },
-] as const
+  { name: 'FRIENDS', href: '/friends', target: '_self' },
+  { name: 'LINKS', href: '/links', target: '_self' },
+]
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -61,10 +68,10 @@ export default function Header() {
         {/* Mobile Navigation */}
         <div 
           className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-            isMenuOpen ? 'max-h-20 opacity-100' : 'max-h-0 opacity-0'
+            isMenuOpen ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <div className="mt-4 ml-4 pb-4 border-t border-border pt-4 flex flex-row gap-5">
+          <div className="mt-4 ml-4 pb-4 border-t border-border pt-4 flex flex-row flex-wrap gap-x-5 gap-y-3">
             {NAV_ITEMS.map((item, index) => (
               <Link 
                 key={item.name}
