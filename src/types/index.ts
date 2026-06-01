@@ -2,7 +2,9 @@
 export interface AlbumPhoto {
   label?: string
   image: string
-  date: string
+  date?: string
+  description?: string
+  details?: Record<string, string | number>
 }
 
 export interface AlbumCategory {

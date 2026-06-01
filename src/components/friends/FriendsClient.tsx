@@ -1,56 +1,200 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FriendItem, FriendsResponse } from '@/types/feed'
 import { formatDate } from '@/lib/utils'
 
 interface FriendsClientProps {
-  initialData: FriendsResponse
+  initialData?: FriendsResponse
 }
 
 const ALL_AUTHORS = 'ALL'
+const INITIAL_VISIBLE_COUNT = 12
+const VISIBLE_INCREMENT = 12
 
 function getAuthorLabel(item: Pick<FriendItem, 'author' | 'sitenick'>) {
   return item.sitenick || item.author
 }
 
+function SkeletonBar({ className = '' }: { className?: string }) {
+  return <span className={`block animate-pulse bg-border ${className}`} />
+}
+
+function ToolbarSkeleton() {
+  return (
+    <section className="border-y border-border py-4">
+      <div className="mb-4 flex flex-wrap gap-3">
+        <SkeletonBar className="h-4 w-20" />
+        <SkeletonBar className="h-4 w-24" />
+        <SkeletonBar className="h-4 w-28" />
+      </div>
+      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px_42px]">
+        <SkeletonBar className="h-10 w-full" />
+        <SkeletonBar className="h-10 w-full" />
+        <SkeletonBar className="h-10 w-full" />
+      </div>
+    </section>
+  )
+}
+
+function ArticleSkeleton() {
+  return (
+    <article className="border-b border-border pb-5">
+      <div className="flex items-center gap-3">
+        <SkeletonBar className="h-9 w-9 rounded-full" />
+        <div className="flex-1">
+          <SkeletonBar className="h-3 w-28" />
+          <SkeletonBar className="mt-2 h-3 w-20" />
+        </div>
+      </div>
+      <SkeletonBar className="mt-5 h-5 w-5/6" />
+      <SkeletonBar className="mt-3 h-3 w-full" />
+      <SkeletonBar className="mt-2 h-3 w-3/4" />
+    </article>
+  )
+}
+
+function MetaPill({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="text-[11px] font-medium uppercase tracking-wide text-muted">
+      {children}
+    </span>
+  )
+}
+
+function FriendArticleCard({ item }: { item: FriendItem }) {
+  const authorLabel = getAuthorLabel(item)
+  const hasCover = Boolean(item.cover)
+
+  return (
+    <a
+      href={item.link}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block border-b border-border pb-5 transition-opacity hover:opacity-100"
+    >
+      <article className={hasCover ? 'grid gap-4 md:grid-cols-[minmax(0,1fr)_180px]' : ''}>
+        <div className="min-w-0">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <Image
+                src={item.avatar}
+                alt={authorLabel}
+                width={34}
+                height={34}
+                loading="lazy"
+                className="rounded-full border border-border bg-background object-cover"
+              />
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold leading-tight">{authorLabel}</div>
+                <div className="mt-1 text-xs text-muted">{formatDate(item.pubDate)}</div>
+              </div>
+            </div>
+            <span className="i-lucide-arrow-up-right h-4 w-4 flex-shrink-0 text-muted transition-colors group-hover:text-foreground" />
+          </div>
+
+          <h3 className="text-lg font-semibold leading-snug transition-colors group-hover:text-foreground md:text-xl">
+            {item.title}
+          </h3>
+
+          {item.summary && (
+            <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-muted">
+              {item.summary}
+            </p>
+          )}
+
+          {item.archs?.length ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {item.archs.map(arch => (
+                <span
+                  key={arch}
+                  className="border border-border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted"
+                >
+                  {arch}
+                </span>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        {item.cover && (
+          <div className="relative h-36 overflow-hidden border border-border bg-card md:h-full md:min-h-[150px]">
+            <Image
+              src={item.cover}
+              alt={item.title}
+              fill
+              sizes="(min-width: 768px) 180px, 100vw"
+              loading="lazy"
+              className="object-cover grayscale transition-all duration-500 group-hover:grayscale-0"
+            />
+          </div>
+        )}
+      </article>
+    </a>
+  )
+}
+
 export default function FriendsClient({ initialData }: FriendsClientProps) {
-  const [data, setData] = useState(initialData)
+  const [data, setData] = useState<FriendsResponse | null>(initialData ?? null)
   const [query, setQuery] = useState('')
   const [author, setAuthor] = useState(ALL_AUTHORS)
+  const [isLoading, setIsLoading] = useState(!initialData)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT)
+  const dataRef = useRef<FriendsResponse | null>(initialData ?? null)
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
 
-  useEffect(() => {
-    let ignore = false
+  const loadFriends = useCallback(async () => {
+    const hasData = Boolean(dataRef.current)
 
-    async function refresh() {
+    setError(null)
+    if (hasData) {
       setIsRefreshing(true)
-      try {
-        const response = await fetch('/api/friends')
-        if (!response.ok) return
-        const nextData = (await response.json()) as FriendsResponse
-        if (!ignore) setData(nextData)
-      } finally {
-        if (!ignore) setIsRefreshing(false)
-      }
+    } else {
+      setIsLoading(true)
     }
 
-    refresh()
+    try {
+      const response = await fetch('/api/friends', {
+        headers: {
+          Accept: 'application/json',
+        },
+      })
 
-    return () => {
-      ignore = true
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+
+      const nextData = (await response.json()) as FriendsResponse
+      setData(nextData)
+      dataRef.current = nextData
+    } catch {
+      setError(hasData ? '刷新朋友动态失败，正在显示上一份内容。' : '朋友动态暂时加载失败，请稍后再试。')
+    } finally {
+      setIsLoading(false)
+      setIsRefreshing(false)
     }
   }, [])
 
+  useEffect(() => {
+    if (!initialData) {
+      void loadFriends()
+    }
+  }, [initialData, loadFriends])
+
+  const items = data?.items ?? []
+  const sources = data?.sources ?? []
+
   const authors = useMemo(() => {
-    return Array.from(new Set(data.items.map(getAuthorLabel))).sort((a, b) => a.localeCompare(b))
-  }, [data.items])
+    return Array.from(new Set(items.map(getAuthorLabel))).sort((a, b) => a.localeCompare(b))
+  }, [items])
 
   const filteredItems = useMemo(() => {
     const keyword = query.trim().toLowerCase()
 
-    return data.items.filter((item) => {
+    return items.filter((item) => {
       const matchesAuthor = author === ALL_AUTHORS || getAuthorLabel(item) === author
       const matchesQuery = !keyword || [item.title, item.summary, item.author, item.sitenick]
         .filter(Boolean)
@@ -58,130 +202,133 @@ export default function FriendsClient({ initialData }: FriendsClientProps) {
 
       return matchesAuthor && matchesQuery
     })
-  }, [author, data.items, query])
+  }, [author, items, query])
 
-  const okSources = data.sources.filter(source => source.ok).length
-  const failedSources = data.sources.length - okSources
+  useEffect(() => {
+    setVisibleCount(INITIAL_VISIBLE_COUNT)
+  }, [author, data?.generatedAt, query])
+
+  const visibleItems = useMemo(() => {
+    return filteredItems.slice(0, visibleCount)
+  }, [filteredItems, visibleCount])
+
+  const hasMore = visibleCount < filteredItems.length
+
+  useEffect(() => {
+    const node = sentinelRef.current
+
+    if (!node || !hasMore) {
+      return
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0]?.isIntersecting) {
+        setVisibleCount(count => Math.min(count + VISIBLE_INCREMENT, filteredItems.length))
+      }
+    }, {
+      rootMargin: '360px 0px',
+    })
+
+    observer.observe(node)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [filteredItems.length, hasMore])
+
+  const okSources = sources.filter(source => source.ok).length
+  const failedSources = sources.length - okSources
+  const isInitialLoading = isLoading && !data
 
   return (
-    <div className="mx-4 md:mx-8 my-8 space-y-6">
-      <section className="grid grid-cols-3 border border-border bg-card">
-        <div className="p-4 border-r border-border">
-          <div className="text-xs text-muted">Articles</div>
-          <div className="text-xl font-semibold leading-tight">{data.items.length}</div>
-        </div>
-        <div className="p-4 border-r border-border">
-          <div className="text-xs text-muted">Sources</div>
-          <div className="text-xl font-semibold leading-tight">{okSources}/{data.sources.length}</div>
-        </div>
-        <div className="p-4">
-          <div className="text-xs text-muted">Updated</div>
-          <div className="text-sm font-medium leading-tight">{formatDate(data.generatedAt)}</div>
-        </div>
-      </section>
+    <div className="mx-4 my-8 space-y-6 md:mx-8">
+      {isInitialLoading ? (
+        <ToolbarSkeleton />
+      ) : (
+        <section className="border-y border-border py-4">
+          <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <MetaPill>{items.length} articles</MetaPill>
+            <MetaPill>{okSources}/{sources.length} sources</MetaPill>
+            <MetaPill>updated {data ? formatDate(data.generatedAt) : '--'}</MetaPill>
+          </div>
 
-      <section className="flex flex-col gap-3 md:flex-row">
-        <label className="flex-1 border border-border bg-card px-3 py-2 flex items-center gap-2">
-          <span className="i-lucide-search text-sm text-muted" />
-          <input
-            value={query}
-            onChange={event => setQuery(event.target.value)}
-            placeholder="Search friends posts"
-            className="w-full bg-transparent text-sm outline-none placeholder:text-muted"
-          />
-        </label>
+          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_220px_42px]">
+            <label className="flex h-10 items-center gap-2 border border-border bg-card px-3">
+              <span className="i-lucide-search text-sm text-muted" />
+              <input
+                value={query}
+                onChange={event => setQuery(event.target.value)}
+                placeholder="Search friends posts"
+                disabled={isInitialLoading}
+                className="w-full bg-transparent text-sm outline-none placeholder:text-muted disabled:cursor-not-allowed"
+              />
+            </label>
 
-        <label className="border border-border bg-card px-3 py-2 flex items-center gap-2 md:w-56">
-          <span className="i-lucide-user-round text-sm text-muted" />
-          <select
-            value={author}
-            onChange={event => setAuthor(event.target.value)}
-            className="w-full bg-transparent text-sm outline-none"
-          >
-            <option value={ALL_AUTHORS}>All authors</option>
-            {authors.map(name => (
-              <option key={name} value={name}>{name}</option>
-            ))}
-          </select>
-        </label>
-      </section>
+            <label className="flex h-10 items-center gap-2 border border-border bg-card px-3">
+              <span className="i-lucide-user-round text-sm text-muted" />
+              <select
+                value={author}
+                onChange={event => setAuthor(event.target.value)}
+                disabled={isInitialLoading || authors.length === 0}
+                className="w-full bg-transparent text-sm outline-none disabled:cursor-not-allowed"
+              >
+                <option value={ALL_AUTHORS}>All authors</option>
+                {authors.map(name => (
+                  <option key={name} value={name}>{name}</option>
+                ))}
+              </select>
+            </label>
+
+            <button
+              type="button"
+              onClick={loadFriends}
+              disabled={isLoading || isRefreshing}
+              className="flex h-10 items-center justify-center border border-border bg-card text-muted transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+              aria-label="Refresh friends feed"
+              title="Refresh"
+            >
+              <span className={`i-lucide-refresh-cw text-sm ${isRefreshing ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
+        </section>
+      )}
 
       {failedSources > 0 && (
-        <section className="border border-border bg-card p-4 text-xs text-muted">
+        <section className="border-l border-border pl-4 text-xs leading-relaxed text-muted">
           {failedSources} 个来源暂时不可用，页面已显示成功拉取的文章。
         </section>
       )}
 
-      {isRefreshing && (
-        <div className="flex items-center gap-2 text-xs text-muted">
-          <span className="w-3 h-3 border border-muted border-t-foreground rounded-full animate-spin" />
-          Refreshing feeds
-        </div>
+      {error && (
+        <section className="border-l border-border pl-4 text-xs leading-relaxed text-muted">
+          {error}
+        </section>
       )}
 
-      {filteredItems.length > 0 ? (
-        <section className="space-y-4">
-          {filteredItems.map(item => (
-            <a
-              key={`${item.author}-${item.link}`}
-              href={item.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block border border-border bg-card hover:border-primary transition-colors"
-            >
-              <article className="grid md:grid-cols-[1fr_180px] min-h-[150px]">
-                <div className="p-4 md:p-5 flex flex-col gap-3">
-                  <div className="flex items-center gap-3">
-                    <Image
-                      src={item.avatar}
-                      alt={getAuthorLabel(item)}
-                      width={32}
-                      height={32}
-                      className="rounded-full border border-border bg-background object-cover"
-                    />
-                    <div className="min-w-0">
-                      <div className="text-sm font-medium truncate">{getAuthorLabel(item)}</div>
-                      <div className="text-xs text-muted">{formatDate(item.pubDate)}</div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <h3 className="text-base font-semibold leading-snug">{item.title}</h3>
-                    {item.summary && (
-                      <p className="text-sm text-muted leading-relaxed line-clamp-3">{item.summary}</p>
-                    )}
-                  </div>
-
-                  {item.archs?.length ? (
-                    <div className="flex flex-wrap gap-2">
-                      {item.archs.map(arch => (
-                        <span key={arch} className="border border-border px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
-                          {arch}
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-
-                {item.cover ? (
-                  <div className="relative hidden md:block border-l border-border bg-background">
-                    <Image
-                      src={item.cover}
-                      alt={item.title}
-                      fill
-                      sizes="180px"
-                      className="object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="hidden md:flex border-l border-border bg-background items-center justify-center">
-                    <span className="i-lucide-rss text-2xl text-muted" />
-                  </div>
-                )}
-              </article>
-            </a>
-          ))}
+      {isInitialLoading ? (
+        <section className="space-y-5">
+          <ArticleSkeleton />
+          <ArticleSkeleton />
+          <ArticleSkeleton />
         </section>
+      ) : filteredItems.length > 0 ? (
+        <>
+          <section className="space-y-5">
+            {visibleItems.map(item => (
+              <FriendArticleCard
+                key={`${item.author}-${item.link}`}
+                item={item}
+              />
+            ))}
+          </section>
+
+          {hasMore && (
+            <div ref={sentinelRef} className="flex items-center justify-center py-4 text-xs text-muted">
+              <span className="mr-2 h-3 w-3 rounded-full border border-muted border-t-foreground animate-spin" />
+              Loading more
+            </div>
+          )}
+        </>
       ) : (
         <section className="border border-border bg-card p-8 text-center text-sm text-muted">
           没有匹配的朋友动态。

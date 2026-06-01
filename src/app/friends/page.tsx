@@ -1,35 +1,17 @@
 import FriendsClient from '@/components/friends/FriendsClient'
 import { SectionDivider } from '@/components/common'
-import { aggregateFriends } from '@/lib/friends'
-import type { FriendsResponse } from '@/types/feed'
 
 export const metadata = {
   title: 'Friends',
   description: '朋友们最近写下的内容',
 }
 
-export const dynamic = 'force-dynamic'
-
-async function getFriends(): Promise<FriendsResponse> {
-  try {
-    return await aggregateFriends()
-  } catch {
-    return {
-      items: [],
-      sources: [],
-      generatedAt: new Date().toISOString(),
-    }
-  }
-}
-
-export default async function FriendsPage() {
-  const data = await getFriends()
-
+export default function FriendsPage() {
   return (
     <div className="space-y-0">
       <section>
         <h2 className="section-title">
-          01 / <span className="text-foreground">FRIENDS FEED</span>
+          01 / <span className="text-foreground">FRIENDS</span>
         </h2>
         <SectionDivider />
 
@@ -42,7 +24,7 @@ export default async function FriendsPage() {
 
       <SectionDivider />
 
-      <FriendsClient initialData={data} />
+      <FriendsClient />
     </div>
   )
 }
