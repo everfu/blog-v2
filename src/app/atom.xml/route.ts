@@ -1,93 +1,133 @@
+import { XMLBuilder } from 'fast-xml-parser'
 import { getAllPosts, type PostMetadata } from '@/lib/posts'
 import { siteConfig } from '@/../blog.config'
+import packageJson from '@/../package.json'
 
 export const dynamic = 'force-dynamic'
 
-// 从 siteConfig 构建 CONFIG
-const CONFIG = {
-  url: siteConfig.url,
-  title: siteConfig.title,
-  description: siteConfig.description,
-  author: {
-    name: siteConfig.author.name,
-    email: siteConfig.author.email,
-    uri: siteConfig.author.url,
-  },
-  avatar: siteConfig.assets.avatar,
-  favicon: siteConfig.assets.favicon,
-} as const
+const builder = new XMLBuilder({
+  attributeNamePrefix: '$',
+  cdataPropName: '$',
+  format: true,
+  ignoreAttributes: false,
+  textNodeName: '_',
+})
 
-// XML escape helper
-function escapeXml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;')
+interface AtomEntry {
+  id: string
+  title: string
+  link: { $href: string; $rel: string; $type: string }
+  published: string
+  updated: string
+  author: { name: string }
+  summary?: { $type: 'html'; $: string }
+  content: { $type: 'html'; $: string }
+  category?: Array<{ $term: string }>
 }
 
-// Build entry XML
-function buildEntry(post: PostMetadata): string {
-  const postUrl = `${CONFIG.url}/posts/${post.slug}`
-  const pubDate = new Date(post.date).toISOString()
+const absoluteUrl = (pathname: string) => new URL(pathname, siteConfig.url).toString()
 
-  const categories = [
-    post.category ? `<category term="${escapeXml(post.category)}"/>` : '',
-    ...(post.tags?.map((tag: string) => `<category term="${escapeXml(tag)}"/>`) || []),
-  ].filter(Boolean).join('\n    ')
-
-  return `
-  <entry>
-    <title><![CDATA[${post.title}]]></title>
-    <link href="${postUrl}" rel="alternate" type="text/html"/>
-    <id>${postUrl}</id>
-    <published>${pubDate}</published>
-    <updated>${pubDate}</updated>
-    <author>
-      <name>${escapeXml(CONFIG.author.name)}</name>
-    </author>
-    <summary type="html"><![CDATA[${post.excerpt || ''}]]></summary>${post.cover ? `\n    <cover>${escapeXml(post.cover)}</cover>` : ''}${categories ? `\n    ${categories}` : ''}
-  </entry>`
+const toIsoDate = (date: string) => {
+  const parsed = new Date(date)
+  return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString()
 }
 
-// Build feed XML
-function buildFeed(posts: PostMetadata[]): string {
+function renderPreviewContent(post: PostMetadata) {
+  const postUrl = absoluteUrl(`/posts/${post.slug}`)
+  const parts: string[] = []
+
+  if (post.cover) {
+    parts.push(`<img src="${post.cover}" alt="${post.title}" />`)
+  }
+
+  if (post.excerpt) {
+    parts.push(`<p>${post.excerpt}</p>`)
+  }
+
+  parts.push(`<p><a class="view-full" href="${postUrl}">阅读全文</a></p>`)
+
+  return parts.join('')
+}
+
+function convertToAtomEntry(post: PostMetadata): AtomEntry {
+  const postUrl = absoluteUrl(`/posts/${post.slug}`)
+  const date = toIsoDate(post.date)
+  const categories = [post.category, ...(post.tags ?? [])]
+    .filter((category): category is string => Boolean(category))
+    .map(category => ({ $term: category }))
+
+  return {
+    id: postUrl,
+    title: post.title,
+    link: {
+      $href: postUrl,
+      $rel: 'alternate',
+      $type: 'text/html',
+    },
+    published: date,
+    updated: date,
+    author: { name: siteConfig.author.name },
+    summary: post.excerpt
+      ? {
+          $type: 'html',
+          $: post.excerpt,
+        }
+      : undefined,
+    content: {
+      $type: 'html',
+      $: renderPreviewContent(post),
+    },
+    category: categories.length ? categories : undefined,
+  }
+}
+
+function buildFeed(posts: PostMetadata[]) {
   const currentYear = new Date().getFullYear()
-  const lastUpdated = posts.length > 0 
-    ? new Date(posts[0].date).toISOString() 
-    : new Date().toISOString()
+  const updated = posts[0] ? toIsoDate(posts[0].date) : new Date().toISOString()
 
-  const entries = posts.map(buildEntry).join('')
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="/atom.xsl"?>
-<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-CN">
-  <title>${escapeXml(CONFIG.title)}</title>
-  <subtitle>${escapeXml(CONFIG.description)}</subtitle>
-  <link href="${CONFIG.url}/atom.xml" rel="self" type="application/atom+xml"/>
-  <link href="${CONFIG.url}" rel="alternate" type="text/html"/>
-  <id>${CONFIG.url}/</id>
-  <updated>${lastUpdated}</updated>
-  <author>
-    <name>${escapeXml(CONFIG.author.name)}</name>${CONFIG.author.email ? `\n    <email>${escapeXml(CONFIG.author.email)}</email>` : ''}
-    <uri>${CONFIG.author.uri}</uri>
-  </author>
-  <icon>${CONFIG.url}${CONFIG.favicon}</icon>
-  <logo>${CONFIG.url}${CONFIG.avatar}</logo>
-  <rights>© ${siteConfig.copyright.startYear} - ${currentYear} ${escapeXml(CONFIG.author.name)}</rights>
-  <generator uri="https://nextjs.org">Next.js</generator>${entries}
-</feed>`
+  return builder.build({
+    '?xml': { $version: '1.0', $encoding: 'UTF-8' },
+    '?xml-stylesheet': { $type: 'text/xsl', $href: '/atom.xsl' },
+    feed: {
+      $xmlns: 'http://www.w3.org/2005/Atom',
+      '$xml:lang': siteConfig.locale,
+      id: absoluteUrl('/'),
+      title: siteConfig.title,
+      subtitle: siteConfig.description,
+      description: siteConfig.description,
+      updated,
+      author: {
+        name: siteConfig.author.name,
+        email: siteConfig.author.email,
+        uri: siteConfig.author.url,
+      },
+      link: [
+        { $href: absoluteUrl('/atom.xml'), $rel: 'self', $type: 'application/atom+xml' },
+        { $href: absoluteUrl('/'), $rel: 'alternate', $type: 'text/html' },
+      ],
+      icon: absoluteUrl(siteConfig.assets.favicon),
+      logo: absoluteUrl(siteConfig.assets.avatar),
+      rights: `© ${siteConfig.copyright.startYear} - ${currentYear} ${siteConfig.author.name}`,
+      generator: {
+        $uri: 'https://nextjs.org',
+        $version: packageJson.dependencies.next,
+        _: 'Next.js',
+      },
+      entry: posts.map(convertToAtomEntry),
+    },
+  })
 }
 
 export async function GET() {
-  const posts = getAllPosts()
-  const atom = buildFeed(posts)
+  const atom = buildFeed(getAllPosts())
 
   return new Response(atom, {
     headers: {
-      'Content-Type': 'application/xml; charset=utf-8',
+      'Content-Type': 'application/atom+xml; charset=utf-8',
+      'Content-Disposition': 'inline; filename="atom.xml"',
       'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+      'Content-Language': siteConfig.locale,
+      'X-Content-Type-Options': 'nosniff',
     },
   })
 }

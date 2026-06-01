@@ -3,7 +3,7 @@
 	<xsl:output method="html" indent="yes" />
 
 	<xsl:template match="/">
-		<html lang="zh-CN">
+		<html lang="{atom:feed/@xml:lang}">
 		<head>
 			<meta charset="UTF-8" />
 			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,28 +13,19 @@
 		</head>
 
 		<body>
-			<header class="logo-header">
-				<xsl:choose>
-					<xsl:when test="atom:feed/atom:logo">
-						<img class="logo" src="{atom:feed/atom:logo}" alt="" />
-					</xsl:when>
-					<xsl:otherwise>
-						<svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<circle cx="50" cy="50" r="50" fill="#667eea"/>
-							<text x="50" y="65" text-anchor="middle" fill="white" font-size="40" font-weight="bold">F</text>
-						</svg>
-					</xsl:otherwise>
-				</xsl:choose>
+			<header class="feed-header">
+				<img class="feed-logo" src="{atom:feed/atom:logo}" alt="" />
 				<div>
-					<h1 class="title"><xsl:value-of select="atom:feed/atom:title" /></h1>
-					<div class="subtitle"><xsl:value-of select="atom:feed/atom:subtitle" /></div>
+					<p class="feed-kicker">Atom Feed</p>
+					<h1><xsl:value-of select="atom:feed/atom:title" /></h1>
+					<p class="feed-subtitle"><xsl:value-of select="atom:feed/atom:subtitle" /></p>
 				</div>
 			</header>
 
-			<blockquote>
-				<p>本页面是 Atom 订阅源，可直接被订阅。</p>
-				<p><xsl:value-of select="atom:feed/atom:description" /></p>
-			</blockquote>
+			<section class="feed-note">
+				<p>这是本站的 Atom 订阅源，可复制当前地址到 RSS 阅读器订阅。</p>
+				<a href="{atom:feed/atom:link[@rel='alternate']/@href}">返回网站首页</a>
+			</section>
 
 			<main>
 				<xsl:apply-templates select="atom:feed/atom:entry" />
@@ -42,45 +33,39 @@
 
 			<footer>
 				<xsl:value-of select="atom:feed/atom:rights" />
-				<br />
-				由 <a href="https://nextjs.org"><xsl:value-of select="atom:feed/atom:generator" /></a> 生成
+				<span> · </span>
+				由 <xsl:value-of select="atom:feed/atom:generator" /> 生成
 			</footer>
 		</body>
 		</html>
 	</xsl:template>
 
 	<xsl:template match="atom:entry">
-		<a href="{atom:link/@href}" class="entry" target="_blank">
-			<xsl:if test="atom:cover">
-				<img class="entry-image" src="{atom:cover}" alt="{atom:title}" loading="lazy" />
-			</xsl:if>
+		<a href="{atom:link/@href}" class="entry">
+			<xsl:variable name="img-src" select="substring-before(substring-after(substring-after(atom:content, '&lt;img'), 'src=&quot;'), '&quot;')" />
 
 			<article>
-				<h2 class="entry-title">
-					<xsl:value-of select="atom:title" />
-				</h2>
-
-				<xsl:if test="atom:summary">
-					<div class="entry-summary">
-						<xsl:value-of select="atom:summary" />
+				<div class="entry-body">
+					<div class="entry-meta">
+						<time><xsl:value-of select="substring(atom:published, 1, 10)" /></time>
+						<xsl:if test="atom:category">
+							<span><xsl:value-of select="atom:category[1]/@term" /></span>
+						</xsl:if>
 					</div>
-				</xsl:if>
 
-				<div class="entry-meta">
-					发布于 <xsl:value-of select="substring(atom:published, 1, 10)" />
+					<h2><xsl:value-of select="atom:title" /></h2>
 
-					<xsl:if test="atom:updated and atom:updated != atom:published">
-						 · 更新于 <xsl:value-of select="substring(atom:updated, 1, 10)" />
+					<xsl:if test="atom:summary">
+						<p class="entry-summary"><xsl:value-of select="atom:summary" /></p>
 					</xsl:if>
 
-					<xsl:if test="atom:category">
-						<span class="category-tag">
-							<xsl:value-of select="atom:category[1]/@term" />
-						</span>
-					</xsl:if>
+					<span class="entry-link">阅读全文</span>
 				</div>
+
+				<xsl:if test="$img-src">
+					<img class="entry-image" src="{$img-src}" alt="{atom:title}" loading="lazy" />
+				</xsl:if>
 			</article>
 		</a>
 	</xsl:template>
-
 </xsl:stylesheet>
