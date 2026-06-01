@@ -39,6 +39,7 @@ export const metadata: Metadata = {
     canonical: siteConfig.url,
     types: {
       'application/atom+xml': `${siteConfig.url}/atom.xml`,
+      'text/x-opml': `${siteConfig.url}/efu.opml`,
     },
   },
   icons: {
