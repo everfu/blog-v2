@@ -112,11 +112,10 @@ export function buildAtomFeed(posts: PostMetadata[]) {
 export function createAtomResponse(posts: PostMetadata[]) {
   return new Response(buildAtomFeed(posts), {
     headers: {
-      'Content-Type': 'application/atom+xml; charset=utf-8',
+      'Content-Type': 'application/xml; charset=utf-8',
       'Content-Disposition': 'inline; filename="atom.xml"',
       'Cache-Control': 'public, max-age=3600, s-maxage=3600',
       'Content-Language': siteConfig.locale,
-      'X-Content-Type-Options': 'nosniff',
     },
   })
 }
