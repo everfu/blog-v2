@@ -31,6 +31,7 @@ async function fetchOne(entry: FeedEntry & { feed: string }): Promise<{ items: F
         Accept: 'application/atom+xml, application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.5',
         'User-Agent': `cube-blog-friends/1.0 (+${entry.link})`,
       },
+      next: { revalidate: FRIENDS_CACHE_TTL_MS / 1000 },
       redirect: 'follow',
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     })

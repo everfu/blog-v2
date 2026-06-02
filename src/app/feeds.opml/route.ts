@@ -1,6 +1,6 @@
 import { createOpmlResponse } from '@/features/feeds'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 3600
 
 export async function GET() {
   return createOpmlResponse('feeds.opml')

@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { cache } from 'react'
 import matter from 'gray-matter'
 import { siteConfig } from '@/config/site'
 
@@ -104,7 +105,7 @@ function readPostFile(fileName: string): Post {
   return normalizePost(slug, data, content)
 }
 
-export function getAllPosts(): PostMetadata[] {
+export const getAllPosts = cache(function getAllPosts(): PostMetadata[] {
   if (!fs.existsSync(postsDirectory)) {
     return []
   }
@@ -115,7 +116,7 @@ export function getAllPosts(): PostMetadata[] {
     .map(toMetadata)
 
   return sortByDateDesc(posts)
-}
+})
 
 export function getRecentPosts(limit?: number): PostMetadata[] {
   const posts = getAllPosts().filter(post => post.recent)
@@ -126,7 +127,7 @@ export function getMorePosts(): PostMetadata[] {
   return getAllPosts().filter(post => !post.recent)
 }
 
-export function getPostBySlug(slug: string): Post | null {
+export const getPostBySlug = cache(function getPostBySlug(slug: string): Post | null {
   const postPath = getPostPath(slug)
   if (!postPath) return null
 
@@ -138,9 +139,9 @@ export function getPostBySlug(slug: string): Post | null {
   } catch {
     return null
   }
-}
+})
 
-export function getPostPath(slug: string): string | null {
+export const getPostPath = cache(function getPostPath(slug: string): string | null {
   const mdxPath = path.join(postsDirectory, `${slug}.mdx`)
   const mdPath = path.join(postsDirectory, `${slug}.md`)
 
@@ -148,4 +149,4 @@ export function getPostPath(slug: string): string | null {
   if (fs.existsSync(mdPath)) return mdPath
 
   return null
-}
+})
