@@ -1,10 +1,12 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useState } from 'react'
 import Image from 'next/image'
-import Lightbox from 'yet-another-react-lightbox'
-import Zoom from 'yet-another-react-lightbox/plugins/zoom'
-import 'yet-another-react-lightbox/styles.css'
+
+const MDXLightbox = dynamic(() => import('./MDXLightbox'), {
+  ssr: false,
+})
 
 interface MDXImageProps {
   src: string
@@ -13,15 +15,18 @@ interface MDXImageProps {
 
 export default function MDXImage({ src, alt }: MDXImageProps) {
   const [open, setOpen] = useState(false)
+  const imageAlt = alt || ''
 
   return (
     <>
       <span className="block my-6">
         <Image 
           src={src} 
-          alt={alt || ''} 
+          alt={imageAlt}
           width={800} 
           height={400} 
+          sizes="(max-width: 780px) calc(100vw - 2rem), 716px"
+          loading="lazy"
           className="w-full h-auto border border-border cursor-zoom-in hover:opacity-90 transition-opacity"
           onClick={() => setOpen(true)}
         />
@@ -30,25 +35,14 @@ export default function MDXImage({ src, alt }: MDXImageProps) {
         )}
       </span>
 
-      <Lightbox
-        open={open}
-        close={() => setOpen(false)}
-        slides={[{ src, alt: alt || '' }]}
-        plugins={[Zoom]}
-        animation={{ fade: 300 }}
-        controller={{ closeOnBackdropClick: true }}
-        styles={{
-          container: { backgroundColor: 'rgba(0, 0, 0, 0.95)' },
-        }}
-        zoom={{
-          maxZoomPixelRatio: 3,
-          scrollToZoom: true,
-        }}
-        render={{
-          buttonPrev: () => null,
-          buttonNext: () => null,
-        }}
-      />
+      {open && (
+        <MDXLightbox
+          src={src}
+          alt={imageAlt}
+          open={open}
+          onClose={() => setOpen(false)}
+        />
+      )}
     </>
   )
 }

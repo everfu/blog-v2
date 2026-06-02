@@ -147,6 +147,7 @@ export default async function PostPage({ params }: PageProps) {
                   alt={post.title}
                   fill
                   sizes="(max-width: 768px) 0vw, 280px"
+                  unoptimized={post.cover.endsWith('.gif')}
                   className="object-cover"
                 />
               </div>

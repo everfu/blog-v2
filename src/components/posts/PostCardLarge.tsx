@@ -12,7 +12,7 @@ export default function PostCardLarge({ post }: PostCardLargeProps) {
 
   return (
     <Link href={`/posts/${post.slug}`} className="block">
-      <article className="group border border-border hover:border-primary transition-all duration-500 min-h-[200px] flex flex-col md:flex-row bg-card overflow-hidden">
+      <article className="group card min-h-[200px] flex flex-col md:flex-row overflow-hidden">
         {/* 左侧内容 */}
         <div className="flex-1 p-4 md:p-6 flex flex-col">
           {/* 顶部信息 */}
@@ -46,6 +46,7 @@ export default function PostCardLarge({ post }: PostCardLargeProps) {
                 alt={post.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
+                unoptimized={post.cover.endsWith('.gif')}
                 className="object-cover"
               />
             ) : (
