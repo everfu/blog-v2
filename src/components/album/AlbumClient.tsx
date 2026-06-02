@@ -28,6 +28,9 @@ export default function AlbumClient({ categories }: AlbumClientProps) {
 
   const handleClose = useCallback(() => setSelectedCategory(null), [])
   const clearHover = useCallback(() => setHoveredCategory(null), [])
+  const handleCardHover = useCallback((categoryName: string) => {
+    setHoveredCategory(categoryName)
+  }, [])
 
   return (
     <>
@@ -42,7 +45,7 @@ export default function AlbumClient({ categories }: AlbumClientProps) {
               category={category}
               index={index}
               onClick={() => handleCardClick(category)}
-              onHover={() => setHoveredCategory(category.name)}
+              onHover={() => handleCardHover(category.name)}
               isBlurred={hoveredCategory !== null && hoveredCategory !== category.name}
             />
           ))}

@@ -12,12 +12,13 @@ interface AlbumCardProps {
 
 export default function AlbumCard({ category, index = 0, onClick, onHover, isBlurred }: AlbumCardProps) {
   const photoCount = category.list?.length ?? 0
+  const isEmpty = photoCount === 0
 
   return (
     <button
       type="button"
       className={cn(
-        'relative overflow-hidden group cursor-pointer transition-all duration-300 min-h-[148px] aspect-[16/10] text-left',
+        'card group relative aspect-[16/10] min-h-[148px] cursor-pointer overflow-hidden text-left',
         'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background',
         isBlurred && 'blur-[4px] scale-[0.98] opacity-70'
       )}
@@ -40,19 +41,30 @@ export default function AlbumCard({ category, index = 0, onClick, onHover, isBlu
         <div className="absolute inset-0 bg-muted" />
       )}
       
-      <div className="absolute inset-0 bg-black/35 group-hover:bg-black/20 transition-all duration-300" />
-      <div className="absolute inset-x-0 bottom-0 h-18 bg-gradient-to-t from-black/70 to-transparent" />
+      <div className="absolute inset-0 bg-black/25 transition-all duration-300 group-hover:bg-black/15" />
+      <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-18 bg-gradient-to-b from-black/45 to-transparent" />
       
-      <h3 
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 text-white font-bold italic text-center transition-all ease-in-out duration-300 text-2xl md:text-3xl blur-[1.2px] group-hover:blur-0 tracking-wider"
-        style={{ textShadow: '2px 2px 8px rgba(0, 0, 0, 0.6)' }}
-      >
-        {category.label}
-      </h3>
+      <div className="absolute left-3 right-3 top-3 z-10 flex items-start justify-between gap-3">
+        <span className="font-mono text-[10px] uppercase tracking-wide text-white/65">
+          Collection {String(index + 1).padStart(2, '0')}
+        </span>
+        <span className="border border-white/20 bg-black/20 px-2 py-0.5 font-mono text-[10px] uppercase text-white/75 backdrop-blur-sm">
+          {isEmpty ? 'Empty' : `${photoCount} Photos`}
+        </span>
+      </div>
 
-      <span className="absolute left-3 bottom-2 z-10 text-[11px] font-mono text-white/70">
-        {photoCount > 0 ? `${photoCount} PHOTOS` : 'EMPTY'}
-      </span>
+      <div className="absolute bottom-3 left-3 right-3 z-10">
+        <h3
+          className="text-2xl font-bold italic tracking-wider text-white transition-transform duration-300 group-hover:-translate-y-0.5 md:text-3xl"
+          style={{ textShadow: '2px 2px 8px rgba(0, 0, 0, 0.55)' }}
+        >
+          {category.label}
+        </h3>
+        <p className="mt-1 font-mono text-[11px] uppercase text-white/60">
+          {isEmpty ? 'Waiting for first photo' : 'Open collection'}
+        </p>
+      </div>
     </button>
   )
 }
