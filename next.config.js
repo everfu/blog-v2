@@ -11,6 +11,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'unavatar.webp.se' },
       { protocol: 'https', hostname: '7.isyangs.cn' },
       { protocol: 'https', hostname: 'www.zhilu.site' },
+      { protocol: 'https', hostname: 'blog.xiowo.net' },
     ],
   },
 }

@@ -1,4 +1,4 @@
-import { feedEntries } from '@/data/feeds'
+import { feedEntries, getFriendAvatar } from '@/data/feeds'
 import { parseFeedXml } from '@/features/feeds/parse-feed'
 import type { FeedEntry, FriendItem, FriendSourceStatus, FriendsResponse } from '@/types/feed'
 
@@ -46,7 +46,7 @@ async function fetchOne(entry: FeedEntry & { feed: string }): Promise<{ items: F
       .map<FriendItem>(item => ({
         author: entry.author,
         sitenick: entry.sitenick,
-        avatar: entry.avatar,
+        avatar: getFriendAvatar(entry),
         siteLink: entry.link,
         archs: entry.archs,
         title: item.title,

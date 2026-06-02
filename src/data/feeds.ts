@@ -1,6 +1,11 @@
 import type { FeedEntry, FeedGroup } from '@/types/feed'
 
 const getFavicon = (domain: string) => `https://unavatar.webp.se/google/${domain}?s=32`
+export const DEFAULT_FRIEND_AVATAR = '/mstile-150x150.png'
+
+export function getFriendAvatar(entry: Pick<FeedEntry, 'avatar' | 'icon'>) {
+  return entry.avatar || entry.icon || DEFAULT_FRIEND_AVATAR
+}
 
 export const feedGroups: FeedGroup[] = [
   {
@@ -62,7 +67,7 @@ export const feedGroups: FeedGroup[] = [
         sitenick: 'isYangs',
         link: 'https://isyangs.cn',
         icon: getFavicon('isyangs.cn'),
-        avatar: 'https://7.isyangs.cn/8/655c9835780a0-8.jpg',
+        // avatar: 'https://7.isyangs.cn/8/655c9835780a0-8.jpg',
         desc: '一个前端Bug构造师的博客',
         archs: ['Vue', 'Vercel'],
         date: '2024-01-29',
@@ -81,6 +86,33 @@ export const feedGroups: FeedGroup[] = [
       },
     ],
   },
+  {
+    name: '冲浪好友',
+    desc: '这里记录了在冲浪时关注的好友',
+    entries: [
+      {
+        author: 'Mo',
+        sitenick: 'Mo的记事簿',
+        link: 'https://blog.xiowo.net/',
+        icon: getFavicon('blog.xiowo.net'),
+        avatar: 'https://blog.xiowo.net/img/avatar.png',
+        desc: '万年鸽王，哈哈OvO',
+        archs: ['Hexo', 'Vercel'],
+        date: '2026-06-02',
+        feed: 'https://blog.xiowo.net/atom.xml',
+      },
+      {
+        author: 'Frederick',
+        sitenick: 'Frederick',
+        link: 'https://ooowl.net/',
+        icon: getFavicon('ooowl.net'),
+        desc: 'Frederick的博客，记录生活点滴',
+        archs: ['Hexo', 'Astro'],
+        date: '2026-06-02',
+        feed: 'https://ooowl.net/atom.xml',
+      }
+    ],
+  }
 ]
 
 export const feedEntries: FeedEntry[] = feedGroups.flatMap(group => group.entries)

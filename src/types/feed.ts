@@ -1,4 +1,4 @@
-export type FeedArch = 'Cloudflare' | 'Hexo' | 'Nuxt' | 'Vue' | 'Vercel' | '国内 CDN'
+export type FeedArch = 'Cloudflare' | 'Hexo' | 'Astro' | 'Nuxt' | 'Vue' | 'Vercel' | '国内 CDN'
 
 export interface FeedEntry {
   author: string
@@ -8,7 +8,7 @@ export interface FeedEntry {
   link: string
   feed?: string
   icon: string
-  avatar: string
+  avatar?: string
   archs?: FeedArch[]
   date: string
   comment?: string
@@ -18,7 +18,7 @@ export interface FeedEntry {
 export interface FriendItem {
   author: string
   sitenick?: string
-  avatar: string
+  avatar?: string
   siteLink: string
   archs?: FeedArch[]
   title: string

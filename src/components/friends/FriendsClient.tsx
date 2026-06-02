@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FriendItem, FriendsResponse } from '@/types/feed'
+import { DEFAULT_FRIEND_AVATAR } from '@/data/feeds'
 import { formatDate } from '@/lib/utils'
 
 interface FriendsClientProps {
@@ -65,6 +66,7 @@ function MetaPill({ children }: { children: React.ReactNode }) {
 function FriendArticleCard({ item }: { item: FriendItem }) {
   const authorLabel = getAuthorLabel(item)
   const hasCover = Boolean(item.cover)
+  const avatar = item.avatar || DEFAULT_FRIEND_AVATAR
 
   return (
     <a
@@ -80,7 +82,7 @@ function FriendArticleCard({ item }: { item: FriendItem }) {
               {/* Remote feed avatars can be SVGs, so keep them outside Next Image optimization. */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={item.avatar}
+                src={avatar}
                 alt={authorLabel}
                 width={34}
                 height={34}

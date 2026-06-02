@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { feedGroups } from '@/data/feeds'
+import { feedGroups, getFriendAvatar } from '@/data/feeds'
 import { SectionDivider } from '@/components/common'
 import type { FeedEntry, FeedGroup } from '@/types/feed'
 
@@ -12,12 +12,13 @@ const totalLinks = feedGroups.reduce((count, group) => count + group.entries.len
 
 function getArchClass(arch: string) {
   const map: Record<string, string> = {
-    Cloudflare: 'i-lucide-cloud',
-    Hexo: 'i-lucide-hexagon',
-    Nuxt: 'i-lucide-triangle',
-    Vue: 'i-lucide-leaf',
-    Vercel: 'i-lucide-circle-dot',
-    '国内 CDN': 'i-lucide-radio-tower',
+    Cloudflare: 'i-devicon-cloudflare',
+    Hexo: 'i-logos-hexo',
+    Nuxt: 'i-material-icon-theme-nuxt',
+    Vue: 'i-material-icon-theme-vue',
+    Astro: 'i-catppuccin-astro',
+    Vercel: 'i-ri-vercel-line',
+    '国内 CDN': 'i-twemoji-flag-china',
   }
 
   return map[arch] || 'i-lucide-tag'
@@ -59,7 +60,8 @@ function GroupHeader({ group, index }: { group: FeedGroup, index: number }) {
 
 function LinkCard({ link }: { link: FeedEntry }) {
   const title = link.sitenick || link.author
-  const icon = link.icon || link.avatar
+  const avatar = getFriendAvatar(link)
+  const icon = link.icon || avatar
 
   return (
     <a
@@ -73,7 +75,7 @@ function LinkCard({ link }: { link: FeedEntry }) {
           <div className="relative h-11 w-11 flex-shrink-0">
             <div className="relative h-11 w-11 overflow-hidden rounded-full border border-border bg-background">
               <Image
-                src={link.avatar}
+                src={avatar}
                 alt={title}
                 fill
                 sizes="44px"
