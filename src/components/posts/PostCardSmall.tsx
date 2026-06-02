@@ -11,7 +11,7 @@ export default function PostCardSmall({ post }: PostCardSmallProps) {
 
   return (
     <Link href={`/posts/${post.slug}`} className="block">
-      <article className="group bg-card border border-border p-4 hover:border-primary transition-all duration-200 min-h-[120px] flex flex-col justify-between">
+      <article className="group card p-4 min-h-[120px] flex flex-col justify-between">
         {/* 顶部：REC 标签和标题 */}
         <div className="flex items-center gap-3 mb-3">
           {post.recent && (

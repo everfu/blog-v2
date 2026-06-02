@@ -6,7 +6,7 @@ interface HardwareCardProps {
   item: HardwareItem
 }
 
-const CARD_CLASS = 'bg-card border border-border hover:border-primary transition-all duration-200 group overflow-hidden relative'
+const CARD_CLASS = 'card group overflow-hidden relative'
 
 export default function HardwareCard({ item }: HardwareCardProps) {
   const content = (
@@ -85,4 +85,3 @@ export default function HardwareCard({ item }: HardwareCardProps) {
 
   return <div className={CARD_CLASS}>{content}</div>
 }
-

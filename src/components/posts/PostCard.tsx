@@ -12,7 +12,7 @@ export default function PostCard({ post }: PostCardProps) {
   return (
     <Link href={`/posts/${post.slug}`} className="block">
       <article 
-        className="group bg-card border border-border p-5 hover:border-primary transition-all duration-500 min-h-[110px] flex flex-col relative overflow-hidden"
+        className="group card p-5 min-h-[110px] flex flex-col relative overflow-hidden"
         style={{
           backgroundImage: post.cover ? `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${post.cover})` : 'none',
           backgroundSize: 'cover',

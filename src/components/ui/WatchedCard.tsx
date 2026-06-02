@@ -37,7 +37,7 @@ export default function WatchedCard({ item }: WatchedCardProps) {
   const details = `${item.year} / ${item.country} / ${item.genre} / ${item.director}`
 
   return (
-    <div className="bg-card border border-border hover:border-primary transition-all duration-200 group overflow-hidden">
+    <div className="card group overflow-hidden">
       {/* 移动端：背景图片布局 */}
       <div 
         className="md:hidden relative min-h-[200px] p-4 flex flex-col justify-end"

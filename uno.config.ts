@@ -37,7 +37,7 @@ export default defineConfig({
   },
   shortcuts: {
     'btn': 'px-6 py-3 bg-primary text-background hover:opacity-80 transition-opacity cursor-pointer font-medium text-xs uppercase tracking-wide',
-    'card': 'bg-card border border-border hover:border-primary transition-all duration-200',
+    'card': 'bg-card border border-border transition-colors duration-200 hover:border-primary',
     'section-title': 'text-xs font-mono uppercase tracking-wider text-secondary my-3 mx-6 font-medium',
     'corner': 'absolute -inset-1 border border-primary rounded-sm opacity-0 group-hover:opacity-100 group-hover:scale-100 scale-75 transition-all duration-200 ease-out pointer-events-none',
     'animate-fade-in-up': 'opacity-0 animate-[fade-in-up_0.5s_ease_forwards]',

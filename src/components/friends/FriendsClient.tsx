@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FriendItem, FriendsResponse } from '@/types/feed'
 import { formatDate } from '@/lib/utils'
@@ -78,13 +77,16 @@ function FriendArticleCard({ item }: { item: FriendItem }) {
         <div className="min-w-0">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div className="flex min-w-0 items-center gap-3">
-              <Image
+              {/* Remote feed avatars can be SVGs, so keep them outside Next Image optimization. */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
                 src={item.avatar}
                 alt={authorLabel}
                 width={34}
                 height={34}
                 loading="lazy"
-                className="rounded-full border border-border bg-background object-cover"
+                decoding="async"
+                className="h-[34px] w-[34px] rounded-full border border-border bg-background object-cover"
               />
               <div className="min-w-0">
                 <div className="truncate text-sm font-semibold leading-tight">{authorLabel}</div>
@@ -120,13 +122,14 @@ function FriendArticleCard({ item }: { item: FriendItem }) {
 
         {item.cover && (
           <div className="relative h-36 overflow-hidden border border-border bg-card md:h-full md:min-h-[150px]">
-            <Image
+            {/* RSS item covers come from arbitrary hosts that cannot be safely whitelisted. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={item.cover}
               alt={item.title}
-              fill
-              sizes="(min-width: 768px) 180px, 100vw"
               loading="lazy"
-              className="object-cover grayscale transition-all duration-500 group-hover:grayscale-0"
+              decoding="async"
+              className="h-full w-full object-cover grayscale transition-all duration-500 group-hover:grayscale-0"
             />
           </div>
         )}

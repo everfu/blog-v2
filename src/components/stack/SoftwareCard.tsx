@@ -14,7 +14,7 @@ function ItemIcon({ icon, image, name }: Pick<SoftwareItem, 'icon' | 'image' | '
 
 export default function SoftwareCard({ item }: SoftwareCardProps) {
   const content = (
-    <div className="flex items-start gap-3 p-3 bg-card border border-border hover:border-primary transition-all duration-200 group">
+    <div className="card flex items-start gap-3 p-3 group">
       <div className="relative w-10 h-10 rounded flex items-center justify-center flex-shrink-0">
         <ItemIcon icon={item.icon} image={item.image} name={item.name} />
       </div>
@@ -37,4 +37,3 @@ export default function SoftwareCard({ item }: SoftwareCardProps) {
     </Link>
   ) : content
 }
-
