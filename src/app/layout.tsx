@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import '@unocss/reset/tailwind.css'
 import './globals.css'
 import { Header, Footer } from '@/components/layout'
+import { ThemeProvider } from '@/components/theme/ThemeProvider'
 import { siteConfig } from '@/config/site'
 
 export const metadata: Metadata = {
@@ -56,11 +57,13 @@ export default function RootLayout({
   return (
     <html lang={siteConfig.locale} suppressHydrationWarning>
       <body className="min-h-screen relative px-4 md:px-0" suppressHydrationWarning>
-        <Header />
-        <main className="max-w-[780px] mx-auto relative z-10">
-          {children}
-        </main>
-        <Footer />
+        <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <Header />
+          <main className="max-w-[780px] mx-auto relative z-10">
+            {children}
+          </main>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   )

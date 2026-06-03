@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { SectionDivider } from '@/components/common'
+import { ThemeToggle } from '@/components/theme/ThemeToggle'
 import Logo from './Logo'
 import MobileNavigation from './MobileNavigation'
 
@@ -26,25 +27,29 @@ export default function Header() {
             <Logo />
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
-            {NAV_ITEMS.map((item, index) => (
-              <Link 
-                key={item.name}
-                href={item.href}
-                className="relative px-2 py-1 text-xs font-medium tracking-wide text-foreground transition-opacity group animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-                target={item.target}
-                rel={item.target === '_blank' ? 'noopener noreferrer' : ''}
-              >
-                <span className="corner" />
-                {item.name}
-              </Link>
-            ))}
+          <div className="flex items-center gap-2 md:gap-5">
+            {/* Desktop Navigation */}
+            <div className="hidden items-center gap-6 md:flex">
+              {NAV_ITEMS.map((item, index) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="relative px-2 py-1 text-xs font-medium tracking-wide text-foreground transition-opacity group animate-fade-in-up"
+                  style={{ animationDelay: `${index * 0.1}s` }}
+                  target={item.target}
+                  rel={item.target === '_blank' ? 'noopener noreferrer' : ''}
+                >
+                  <span className="corner" />
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+
+            <ThemeToggle />
+            <MobileNavigation items={NAV_ITEMS} />
           </div>
 
         </div>
-        <MobileNavigation items={NAV_ITEMS} />
       </nav>
       <SectionDivider />
     </header>

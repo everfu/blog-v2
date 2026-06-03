@@ -22,7 +22,8 @@ export default function MobileNavigation({ items }: MobileNavigationProps) {
   return (
     <div className="md:hidden">
       <button
-        className="absolute right-2 top-2 p-2 w-8 h-8"
+        type="button"
+        className="relative h-8 w-8 p-2"
         onClick={toggleMenu}
         aria-expanded={isMenuOpen}
         aria-label="Toggle menu"
@@ -36,7 +37,7 @@ export default function MobileNavigation({ items }: MobileNavigationProps) {
       </button>
 
       <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+        className={`absolute left-2 right-2 top-12 z-20 overflow-hidden bg-background/95 backdrop-blur-md transition-all duration-300 ease-in-out ${
           isMenuOpen ? 'max-h-32 opacity-100' : 'max-h-0 opacity-0'
         }`}
       >

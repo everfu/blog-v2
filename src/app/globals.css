@@ -18,24 +18,45 @@
   --album-detail-surface: rgba(39, 39, 39, 0.04);
   --album-detail-strip: rgba(240, 240, 240, 0.56);
   --album-detail-label: rgba(250, 250, 250, 0.76);
+  color-scheme: light dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark mode colors */
-    --color-background: #0a0a0a;
-    --color-foreground: #ededed;
-    --color-card: #1a1a1a;
-    --color-primary: #ededed;
-    --color-primary-foreground: #0a0a0a;
-    --color-muted: #a6a6a6;
-    --color-border: #2a2a2a;
-    --album-detail-backdrop: rgba(10, 10, 10, 0.9);
-    --album-detail-panel: rgba(26, 26, 26, 0.78);
-    --album-detail-surface: rgba(255, 255, 255, 0.06);
-    --album-detail-strip: rgba(26, 26, 26, 0.66);
-    --album-detail-label: rgba(10, 10, 10, 0.76);
-  }
+[data-theme='dark'] {
+  /* Dark mode colors */
+  --color-background: #0a0a0a;
+  --color-foreground: #ededed;
+  --color-card: #1a1a1a;
+  --color-primary: #ededed;
+  --color-primary-foreground: #0a0a0a;
+  --color-muted: #a6a6a6;
+  --color-border: #2a2a2a;
+  --album-detail-backdrop: rgba(10, 10, 10, 0.9);
+  --album-detail-panel: rgba(26, 26, 26, 0.78);
+  --album-detail-surface: rgba(255, 255, 255, 0.06);
+  --album-detail-strip: rgba(26, 26, 26, 0.66);
+  --album-detail-label: rgba(10, 10, 10, 0.76);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) {
+  z-index: 1;
+}
+
+::view-transition-new(root) {
+  z-index: 9999;
+}
+
+[data-theme='dark']::view-transition-old(root) {
+  z-index: 9999;
+}
+
+[data-theme='dark']::view-transition-new(root) {
+  z-index: 1;
 }
 
 * {
@@ -409,7 +430,7 @@ body::before {
   background: var(--album-detail-label);
 }
 
-@media (prefers-color-scheme: dark) {
+[data-theme='dark'] {
   .shiki,
   .shiki span {
     color: var(--shiki-dark) !important;
