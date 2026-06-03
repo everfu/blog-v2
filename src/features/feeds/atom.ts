@@ -1,7 +1,7 @@
 import { XMLBuilder } from 'fast-xml-parser'
 import { siteConfig } from '@/config/site'
 import { absoluteUrl, currentYear, toIsoDate } from '@/config/site-utils'
-import type { PostMetadata } from '@/features/posts'
+import { getPostHref, type PostMetadata } from '@/features/posts'
 import packageJson from '@/../package.json'
 
 const builder = new XMLBuilder({
@@ -25,7 +25,7 @@ interface AtomEntry {
 }
 
 function renderPreviewContent(post: PostMetadata) {
-  const postUrl = absoluteUrl(`/posts/${post.slug}`)
+  const postUrl = absoluteUrl(getPostHref(post))
   const parts: string[] = []
 
   if (post.cover) {
@@ -42,7 +42,7 @@ function renderPreviewContent(post: PostMetadata) {
 }
 
 function convertToAtomEntry(post: PostMetadata): AtomEntry {
-  const postUrl = absoluteUrl(`/posts/${post.slug}`)
+  const postUrl = absoluteUrl(getPostHref(post))
   const date = toIsoDate(post.date)
   const categories = [post.category, ...post.tags]
     .filter((category): category is string => Boolean(category))

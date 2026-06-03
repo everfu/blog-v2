@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { PostMetadata } from '@/features/posts'
+import { getPostHref } from '@/features/posts/routes'
 import { formatDate, getCategoryColor } from '@/lib/utils'
 
 interface PostCardSmallProps {
@@ -10,7 +11,7 @@ export default function PostCardSmall({ post }: PostCardSmallProps) {
   const dateStr = formatDate(post.date)
 
   return (
-    <Link href={`/posts/${post.slug}`} className="block">
+    <Link href={getPostHref(post)} className="block">
       <article className="group card p-4 min-h-[120px] flex flex-col justify-between">
         {/* 顶部：REC 标签和标题 */}
         <div className="flex items-center gap-3 mb-3">

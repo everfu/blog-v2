@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
-import { getAllPosts, getPostBySlug } from '@/features/posts'
+import { getAllPosts, getPostBySlug, getPostHref } from '@/features/posts'
 import { remarkCallout } from '@/lib/remarkCallout'
 import { formatDate, getReadingTime, getCategoryColorWithBorder } from '@/lib/utils'
 import { SectionDivider } from '@/components/common'
@@ -16,20 +16,23 @@ import { absoluteUrl, toIsoDate } from '@/config/site-utils'
 
 interface PageProps {
   params: Promise<{
+    year: string
     slug: string
   }>
 }
 
 export async function generateStaticParams() {
   const posts = getAllPosts()
+
   return posts.map((post) => ({
+    year: post.year,
     slug: post.slug,
   }))
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { slug } = await params
-  const post = getPostBySlug(slug)
+  const { year, slug } = await params
+  const post = getPostBySlug(year, slug)
   
   if (!post) {
     return {
@@ -37,7 +40,7 @@ export async function generateMetadata({ params }: PageProps) {
     }
   }
 
-  const postUrl = absoluteUrl(`/posts/${post.slug}`)
+  const postUrl = absoluteUrl(getPostHref(post))
   const ogImage = absoluteUrl(post.cover || siteConfig.assets.ogImage)
 
   return {
@@ -74,16 +77,16 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function PostPage({ params }: PageProps) {
-  const { slug } = await params
+  const { year, slug } = await params
   const allPosts = getAllPosts()
-  const post = getPostBySlug(slug)
+  const post = getPostBySlug(year, slug)
 
   if (!post) {
     notFound()
   }
 
   // 获取下一篇文章
-  const currentIndex = allPosts.findIndex(p => p.slug === slug)
+  const currentIndex = allPosts.findIndex(p => p.year === year && p.slug === slug)
   const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null
 
   const dateStr = formatDate(post.date)
@@ -182,7 +185,7 @@ export default async function PostPage({ params }: PageProps) {
       {nextPost && (
         <section>
           <Link 
-            href={`/posts/${nextPost.slug}`}
+            href={getPostHref(nextPost)}
             className="block mx-4 md:mx-8 py-8 group"
           >
             <div className="flex items-center justify-between">

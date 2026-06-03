@@ -1,13 +1,13 @@
 import { MetadataRoute } from 'next'
 import { siteConfig } from '@/config/site'
 import { absoluteUrl } from '@/config/site-utils'
-import { getAllPosts } from '@/features/posts'
+import { getAllPosts, getPostHref } from '@/features/posts'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const posts = getAllPosts()
 
   const postUrls = posts.map((post) => ({
-    url: absoluteUrl(`/posts/${post.slug}`),
+    url: absoluteUrl(getPostHref(post)),
     lastModified: new Date(post.date),
     changeFrequency: 'monthly' as const,
     priority: 0.8,

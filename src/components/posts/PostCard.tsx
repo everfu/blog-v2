@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { PostMetadata } from '@/features/posts'
+import { getPostHref } from '@/features/posts/routes'
 import { formatDate } from '@/lib/utils'
 
 interface PostCardProps {
@@ -10,7 +11,7 @@ export default function PostCard({ post }: PostCardProps) {
   const dateStr = formatDate(post.date)
 
   return (
-    <Link href={`/posts/${post.slug}`} className="block">
+    <Link href={getPostHref(post)} className="block">
       <article 
         className="group card p-5 min-h-[110px] flex flex-col relative overflow-hidden"
         style={{

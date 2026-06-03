@@ -105,7 +105,11 @@ export const siteConfig = {
 
 ## Writing Posts
 
-Create a new `.mdx` file in `content/posts/`:
+Create a new `.mdx` file in a year folder under `content/posts/`:
+
+```text
+content/posts/2025/your-post-slug.mdx
+```
 
 ```markdown
 ---

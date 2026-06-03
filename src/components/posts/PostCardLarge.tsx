@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import type { PostMetadata } from '@/features/posts'
+import { getPostHref } from '@/features/posts/routes'
 import { formatDate, getCategoryColor } from '@/lib/utils'
 
 interface PostCardLargeProps {
@@ -11,7 +12,7 @@ export default function PostCardLarge({ post }: PostCardLargeProps) {
   const dateStr = formatDate(post.date)
 
   return (
-    <Link href={`/posts/${post.slug}`} className="block">
+    <Link href={getPostHref(post)} className="block">
       <article className="group card min-h-[200px] flex flex-col md:flex-row overflow-hidden">
         {/* 左侧内容 */}
         <div className="flex-1 p-4 md:p-6 flex flex-col">

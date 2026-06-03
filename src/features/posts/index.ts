@@ -3,12 +3,14 @@ import path from 'path'
 import { cache } from 'react'
 import matter from 'gray-matter'
 import { siteConfig } from '@/config/site'
+export { getPostHref } from './routes'
 
 const postsDirectory = path.join(process.cwd(), 'content/posts')
 const DEFAULT_POST_DATE = `${siteConfig.copyright.startYear}-01-01`
 const DEFAULT_CATEGORY = 'DAILY'
 
 export interface Post {
+  year: string
   slug: string
   title: string
   date: string
@@ -21,6 +23,7 @@ export interface Post {
 }
 
 export interface PostMetadata {
+  year: string
   slug: string
   title: string
   date: string
@@ -47,6 +50,8 @@ const isPostFile = (fileName: string) => {
 
   return isMarkdown && isNotReadme
 }
+
+const isPostYearDirectory = (directoryName: string) => /^\d{4}$/.test(directoryName)
 
 const getSlugFromFileName = (fileName: string) => fileName.replace(/\.(md|mdx)$/, '')
 
@@ -77,8 +82,9 @@ const normalizeDate = (value: unknown) => {
 const createExcerpt = (frontmatterExcerpt: unknown, content: string) =>
   asString(frontmatterExcerpt, `${content.trim().slice(0, 150)}...`)
 
-function normalizePost(slug: string, frontmatter: PostFrontmatter, content: string): Post {
+function normalizePost(year: string, slug: string, frontmatter: PostFrontmatter, content: string): Post {
   return {
+    year,
     slug,
     title: asString(frontmatter.title, slug),
     date: normalizeDate(frontmatter.date),
@@ -96,13 +102,13 @@ const toMetadata = ({ content, ...metadata }: Post): PostMetadata => metadata
 const sortByDateDesc = <T extends { date: string }>(posts: T[]) =>
   posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
-function readPostFile(fileName: string): Post {
+function readPostFile(year: string, fileName: string): Post {
   const slug = getSlugFromFileName(fileName)
-  const fullPath = path.join(postsDirectory, fileName)
+  const fullPath = path.join(postsDirectory, year, fileName)
   const fileContents = fs.readFileSync(fullPath, 'utf8')
   const { data, content } = matter(fileContents)
 
-  return normalizePost(slug, data, content)
+  return normalizePost(year, slug, data, content)
 }
 
 export const getAllPosts = cache(function getAllPosts(): PostMetadata[] {
@@ -110,9 +116,13 @@ export const getAllPosts = cache(function getAllPosts(): PostMetadata[] {
     return []
   }
 
-  const posts = fs.readdirSync(postsDirectory)
-    .filter(isPostFile)
-    .map(readPostFile)
+  const posts = fs.readdirSync(postsDirectory, { withFileTypes: true })
+    .filter(entry => entry.isDirectory() && isPostYearDirectory(entry.name))
+    .flatMap(({ name: year }) =>
+      fs.readdirSync(path.join(postsDirectory, year))
+        .filter(isPostFile)
+        .map(fileName => readPostFile(year, fileName))
+    )
     .map(toMetadata)
 
   return sortByDateDesc(posts)
@@ -127,23 +137,25 @@ export function getMorePosts(): PostMetadata[] {
   return getAllPosts().filter(post => !post.recent)
 }
 
-export const getPostBySlug = cache(function getPostBySlug(slug: string): Post | null {
-  const postPath = getPostPath(slug)
+export const getPostBySlug = cache(function getPostBySlug(year: string, slug: string): Post | null {
+  const postPath = getPostPath(year, slug)
   if (!postPath) return null
 
   try {
     const fileContents = fs.readFileSync(postPath, 'utf8')
     const { data, content } = matter(fileContents)
 
-    return normalizePost(slug, data, content)
+    return normalizePost(year, slug, data, content)
   } catch {
     return null
   }
 })
 
-export const getPostPath = cache(function getPostPath(slug: string): string | null {
-  const mdxPath = path.join(postsDirectory, `${slug}.mdx`)
-  const mdPath = path.join(postsDirectory, `${slug}.md`)
+export const getPostPath = cache(function getPostPath(year: string, slug: string): string | null {
+  if (!isPostYearDirectory(year)) return null
+
+  const mdxPath = path.join(postsDirectory, year, `${slug}.mdx`)
+  const mdPath = path.join(postsDirectory, year, `${slug}.md`)
 
   if (fs.existsSync(mdxPath)) return mdxPath
   if (fs.existsSync(mdPath)) return mdPath
