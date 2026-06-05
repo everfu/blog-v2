@@ -9,8 +9,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@liveblocks/client": "^3.19.3",
-    "@liveblocks/react": "^3.19.3",
+    "@liveblocks/client": "^3.19.4",
+    "@liveblocks/react": "^3.19.4",
     "@types/mdast": "^4.0.4",
     "@types/mdx": "^2.0.13",
     "date-fns": "^4.4.0",
@@ -40,7 +40,7 @@
     "@unocss/preset-icons": "66.7.0",
     "@unocss/reset": "^66.7.0",
     "eslint": "^9.39.4",
-    "eslint-config-next": "^16.2.6",
+    "eslint-config-next": "^16.2.7",
     "typescript": "^5.9.3",
     "unocss": "^66.7.0"
   },
