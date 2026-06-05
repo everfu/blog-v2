@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { getAlbumThumbnailImageSrc } from '@/features/album'
 import type { AlbumCategory, AlbumPhoto } from '@/types'
 
 interface AlbumThumbnailStripProps {
@@ -18,6 +19,7 @@ export default function AlbumThumbnailStrip({
     <div className="album-detail-strip flex gap-2 overflow-x-auto border border-border p-2 shadow-lg backdrop-blur-xl">
       {photos.map((photo, index) => {
         const isSelected = selectedPhotoIndex === index
+        const imageSrc = getAlbumThumbnailImageSrc(photo)
 
         return (
           <button
@@ -31,7 +33,7 @@ export default function AlbumThumbnailStrip({
             aria-pressed={isSelected}
           >
             <Image
-              src={photo.image}
+              src={imageSrc}
               alt={photo.label || category.label}
               fill
               sizes="96px"

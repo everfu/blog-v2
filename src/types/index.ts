@@ -2,6 +2,8 @@
 export interface AlbumPhoto {
   label?: string
   image: string
+  displayImage?: string
+  thumbnailImage?: string
   date?: string
   description?: string
   details?: Record<string, string | number>

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { usePhotoInfo } from '@/features/album'
+import { getAlbumDisplayImageSrc, usePhotoInfo } from '@/features/album'
 import type { AlbumCategory } from '@/types'
 import AlbumEmptyState from './AlbumEmptyState'
 import AlbumInfoPanel from './AlbumInfoPanel'
@@ -88,6 +88,21 @@ export default function AlbumDetail({ category, onClose }: AlbumDetailProps) {
     if (!photos[selectedPhotoIndex] && selectedPhotoIndex !== 0) {
       setSelectedPhotoIndex(0)
     }
+  }, [photos, selectedPhotoIndex])
+
+  useEffect(() => {
+    if (photos.length < 2) return
+
+    const adjacentPhotos = [
+      photos[(selectedPhotoIndex - 1 + photos.length) % photos.length],
+      photos[(selectedPhotoIndex + 1) % photos.length],
+    ]
+
+    adjacentPhotos.forEach((photo) => {
+      const image = new window.Image()
+      image.decoding = 'async'
+      image.src = getAlbumDisplayImageSrc(photo)
+    })
   }, [photos, selectedPhotoIndex])
 
   if (!category) return null

@@ -7,6 +7,19 @@ import { readPhotoInfo, type PhotoInfoState } from './photo-info'
 const photoInfoRequests = new Map<string, Promise<PhotoInfoState>>()
 const photoInfoResults = new Map<string, PhotoInfoState>()
 
+function requestIdleWork(callback: () => void) {
+  const requestIdle = window.requestIdleCallback
+  const cancelIdle = window.cancelIdleCallback
+
+  if (typeof requestIdle === 'function' && typeof cancelIdle === 'function') {
+    const id = requestIdle(callback, { timeout: 1500 })
+    return () => cancelIdle(id)
+  }
+
+  const id = window.setTimeout(callback, 250)
+  return () => window.clearTimeout(id)
+}
+
 function loadPhotoInfo(photo: AlbumPhoto) {
   const cachedResult = photoInfoResults.get(photo.image)
   if (cachedResult) return Promise.resolve(cachedResult)
@@ -57,18 +70,21 @@ export function usePhotoInfo(photo?: AlbumPhoto) {
 
     setPhotoInfo({ status: 'loading', items: [] })
 
-    loadPhotoInfo(photo).then((info) => {
-      if (!active || activeRequestId.current !== requestId) return
-      window.clearTimeout(loadingTimeout)
-      setPhotoInfo(info)
-    }).catch(() => {
-      if (!active || activeRequestId.current !== requestId) return
-      window.clearTimeout(loadingTimeout)
-      setPhotoInfo({ status: 'error', items: [] })
+    const cancelIdleWork = requestIdleWork(() => {
+      loadPhotoInfo(photo).then((info) => {
+        if (!active || activeRequestId.current !== requestId) return
+        window.clearTimeout(loadingTimeout)
+        setPhotoInfo(info)
+      }).catch(() => {
+        if (!active || activeRequestId.current !== requestId) return
+        window.clearTimeout(loadingTimeout)
+        setPhotoInfo({ status: 'error', items: [] })
+      })
     })
 
     return () => {
       active = false
+      cancelIdleWork()
       window.clearTimeout(loadingTimeout)
     }
   }, [photo])
