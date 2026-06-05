@@ -28,8 +28,8 @@ export const siteConfig = {
   },
 
   stats: {
-    repositories: 18,
-    stars: 1106,
+    repositories: 11,
+    stars: 1189,
   },
 
   comment: {

@@ -37,16 +37,11 @@ export const softwareCategories: SoftwareCategory[] = [
     name: 'Mind',
     items: [
       {
-        name: 'Xmind',
-        icon: 'i-flat-color-icons-mind-map',
-        description: '一款思维导图软件。',
-        url: 'https://xmind.com/',
-      },
-      {
-        name: 'Visio',
-        icon: 'i-logos-microsoft',
-        description: '一款流程图软件。',
-        url: 'https://www.microsoft.com/en-us/microsoft-365/visio',
+        name: 'Notion',
+        icon: 'i-logos-notion-icon',
+        description: '一款集笔记、数据库、看板等功能于一体的生产力工具。',
+        url: 'https://www.notion.so/',
+        recommended: true,
       }
     ]
   },
@@ -60,14 +55,25 @@ export const softwareCategories: SoftwareCategory[] = [
         url: 'https://code.visualstudio.com/',
       },
       {
-        name: 'Copilot',
-        icon: 'i-logos-github-octocat',
-        description: 'Github 的 AI 助手。',
-        url: 'https://github.com/features/copilot',
-        recommended: true,
+        name: 'Codex',
+        icon: 'i-ooui-logo-codex',
+        description: 'OpenAI 的代码生成模型，集成在 GitHub Copilot 中。',
+        url: 'https://copilot.github.com/',
       },
       {
-        name: 'Wechat Mini Program',
+        name: 'Android Studio',
+        icon: 'i-devicon-androidstudio',
+        description: 'Google 的 Android 开发工具。',
+        url: 'https://developer.android.com/studio',
+      },
+      {
+        name: 'Xcode',
+        icon: 'i-logos-xcode',
+        description: 'Apple 的开发工具，主要用于 iOS 开发。',
+        url: 'https://developer.apple.com/xcode/',
+      },
+      {
+        name: '微信小程序开发工具',
         icon: 'i-icon-park-weixin-mini-app',
         description: '微信小程序开发工具。',
         url: 'https://mp.weixin.qq.com/',
@@ -77,13 +83,7 @@ export const softwareCategories: SoftwareCategory[] = [
         icon: 'i-logos-chrome',
         description: 'Google 的浏览器，插件丰富。',
         url: 'https://www.google.com/chrome/',
-      },
-      {
-        name: 'Obsidian',
-        icon: 'i-logos-obsidian',
-        description: '知识管理笔记类软件。',
-        url: 'https://obsidian.md/',
-      },
+      }
     ],
   },
   {
