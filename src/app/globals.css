@@ -256,14 +256,9 @@ body::before {
   opacity: 0.7;
 }
 
-.mdx-content ul,
-.mdx-content ol {
-  margin-bottom: 1rem;
-  padding-left: 2rem;
-}
-
-.mdx-content li {
-  margin-bottom: 0.5rem;
+.mdx-content .mdx-list::marker,
+.mdx-content .mdx-list li::marker {
+  color: var(--color-muted);
 }
 
 .mdx-content pre code {

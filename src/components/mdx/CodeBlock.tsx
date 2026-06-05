@@ -31,8 +31,9 @@ function extractLanguage(className?: string): string {
 
 export async function CodeBlock({ children, className }: CodeBlockProps) {
   const lang = extractLanguage(className)
+  const code = children.replace(/\n$/, '')
   
-  const html = await codeToHtml(children, {
+  const html = await codeToHtml(code, {
     lang,
     themes: {
       light: 'github-light',
@@ -40,5 +41,5 @@ export async function CodeBlock({ children, className }: CodeBlockProps) {
     },
   })
 
-  return <CodeBlockClient html={html} code={children} lang={lang} />
+  return <CodeBlockClient html={html} code={code} lang={lang} />
 }

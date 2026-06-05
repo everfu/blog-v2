@@ -49,19 +49,18 @@ export const mdxComponents: MDXComponents = {
     
     // 列表 - 自定义标记样式
     ul: ({ children }) => (
-      <ul className="mb-4 space-y-1.5 text-sm text-foreground/90">
+      <ul className="mdx-list mb-4 list-disc space-y-1.5 pl-5 text-sm text-foreground/90">
         {children}
       </ul>
     ),
     ol: ({ children }) => (
-      <ol className="mb-4 space-y-1.5 text-sm text-foreground/90 list-decimal list-inside">
+      <ol className="mdx-list mb-4 list-decimal space-y-1.5 pl-5 text-sm text-foreground/90">
         {children}
       </ol>
     ),
     li: ({ children }) => (
-      <li className="flex items-start gap-2 leading-7">
-        <span className="text-muted text-[6px]">●</span>
-        <span className="flex-1">{children}</span>
+      <li className="pl-1 leading-7">
+        {children}
       </li>
     ),
     

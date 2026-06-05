@@ -14,9 +14,9 @@ export default function HeroSection() {
         {/* 左侧：标题和介绍 */}
         <div>
           <h1 className="text-2xl md:text-3xl leading-snug mb-6">
-            A nook where <span className="font-bold">thoughts</span>
+            A nook where <span className="text-muted font-bold">thoughts</span>
             <br />
-            <span className="font-bold">& ideas</span> sometimes
+            &amp; <span className="text-muted font-bold">ideas</span> sometimes
             <br />
             echo
           </h1>
