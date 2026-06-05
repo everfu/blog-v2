@@ -1,0 +1,177 @@
+---
+title: 'Friends 页开发的最佳实践：用 RSS 聚合友链动态'
+date: '2026-06-05'
+excerpt: '介绍本站 Friends 的设计和实现细节'
+tags: ['Next.js', 'Feed']
+cover: 'https://cdn.lightxi.com/cloudreve/uploads/2026/06/05/01vdbQkE_ig_0155ee01db200e61016a229f01ba348197ace5af580c9db58e.png'
+category: 'TECH'
+recent: true
+---
+
+## 朋友圈聚合
+
+相信大家在看博客主题的朋友圈实现时，都见过这种思路：给一个友链页地址，让程序爬取页面上的站点链接，再尝试寻找每个站点的 Feed，最后把文章聚合起来。
+
+这套方案当然能跑，[Hexo circle of friends](https://github.com/Rock-Candy-Tea/hexo-circle-of-friends) 就是一个很典型的实现。
+
+### 从友链页抓取，还是手动维护 Feed
+
+本站采用的是更朴素的方案：在 `src/data/feeds.ts` 里手动维护友链和 Feed 地址。
+
+```ts
+{
+  author: 'Antfu',
+  sitenick: 'Antfu',
+  link: 'https://antfu.me/',
+  avatar: 'https://cdn.lightxi.com/cloudreve/uploads/2025/08/02/wQRfFIj8_antfu.svg',
+  archs: ['Vue', 'Vercel'],
+  date: '2024-01-29',
+  feed: 'https://antfu.me/feed.xml',
+}
+```
+
+这里的 `feed` 是 Friends 页的数据入口。配置了 `feed`，服务端就会去拉取这个站点的 RSS / Atom；没有配置，就只作为普通友链展示。
+
+这对吗？对于大规模聚合平台，当然不够自动化；但对个人博客，这是一个很稳的取舍。数据源在哪里、站点是谁、头像用哪个、技术栈怎么写，全都在一份配置里，坏了也好查。
+
+:::info
+本站当前没有爬取友链页，也没有自动发现 Feed 地址。Friends 页的数据源就是 `feedGroups` 中配置了 `feed` 的友链。
+:::
+
+### 渐进增强：没有 Feed 也能做普通友链
+
+友链页和 Friends 页不应该强绑定。没有 Feed 的朋友仍然可以出现在 `/links`，只是不会进入 `/friends` 的动态时间线。这样一来，Feed 聚合只是友链功能的渐进增强，而不是友链存在的前提。
+
+头像也是同理。Feed 里的作者信息经常不完整，所以本站不会依赖远程 Feed 提供头像，而是使用友链配置里的数据：
+
+```ts
+entry.avatar || entry.icon || DEFAULT_FRIEND_AVATAR
+```
+
+优先使用手动配置的头像，其次使用站点图标，最后使用默认头像。不要把页面稳定性寄托在各种 Feed 的“自觉”上，大家写得都挺自由的。
+
+## Feed 解析
+
+Feed 解析位于 `src/features/feeds/parse-feed.ts`，使用 `fast-xml-parser`。
+
+### RSS 和 Atom 的差异
+
+RSS 和 Atom 都能表示文章列表，但字段并不完全一致。RSS 常见入口是 `rss.channel.item`，Atom 常见入口是 `feed.entry`；RSS 的发布时间可能在 `pubDate`，Atom 可能在 `published` 或 `updated`；封面图更是各有各的写法。
+
+如果前端直接消费原始 Feed，会发生什么？
+
+大概就是每多接一个朋友，就多写一段兼容逻辑。今天适配 `media:thumbnail`，明天适配 `content:encoded`，后天发现某个站点把图片藏在正文第一张 `<img>`。写到最后，Friends 页不像朋友圈，像 Feed 考古现场。
+
+所以解析层需要先把不同格式压成统一结构。
+
+### 统一文章结构
+
+本站内部使用的解析结果是：
+
+```ts
+export interface ParsedFeedItem {
+  title: string
+  link: string
+  summary: string
+  cover?: string
+  pubDate: string
+}
+```
+
+解析时会做几件事：
+
+- 标题和摘要去掉 HTML。
+- 摘要截断到 200 个字符。
+- 发布时间转换成 ISO 字符串。
+- 封面从 `enclosure`、`media:content`、`media:thumbnail` 或正文第一张图中提取。
+
+这样前端只需要关心统一后的 `FriendItem`，不用关心朋友们用的是 Hexo、Astro、Nuxt，还是某个不知道从哪里长出来的 Feed 模板。
+
+:::info
+解析层只做格式归一，不做内容存储。本站当前没有数据库，也不会保存历史快照；展示的是当前能从 Feed 中读取到的最新内容。
+:::
+
+## 服务端缓存
+
+朋友圈聚合的服务端逻辑在 `src/features/feeds/friends.ts`，接口入口是 `/api/friends`。
+
+### 避免每次访问都请求所有来源
+
+如果每次打开 Friends 页都实时请求所有朋友的网站，看起来很“实时”，实际上不太礼貌。
+
+本站不是搜索引擎，没有必要让朋友们的 Feed 为我的每一次页面访问加班。所以这里设置了 5 分钟缓存：
+
+```ts
+const FRIENDS_CACHE_TTL_MS = 5 * 60 * 1000
+```
+
+`getCachedFriends()` 会优先返回内存里的聚合结果。缓存过期后，才重新并发请求各个 Feed。
+
+接口层也设置了响应缓存：
+
+```ts
+return Response.json(response, {
+  headers: {
+    'Cache-Control': 'public, max-age=300, stale-while-revalidate=3600',
+  },
+})
+```
+
+这并不是为了追求极致缓存，而是为了避免一个小功能制造没必要的网络压力。Friends 页需要新鲜，但不需要秒级新鲜。
+
+### pending request 合并
+
+还有一个容易忽略的问题：并发访问。
+
+假设缓存刚好过期，多个用户同时打开 Friends 页，如果每个请求都重新聚合一次，朋友们的网站就会同时收到多轮重复请求。技术上能跑，但多少有点不讲武德。
+
+所以代码里维护了 `pendingFriendsRequest`。当一轮聚合正在进行时，后续请求会复用同一个 Promise，而不是重新发起一轮抓取。
+
+另外，每个 Feed 请求都有 8 秒超时。单个来源失败时，只会记录这个来源的错误，不影响其他来源：
+
+```ts
+const results = await Promise.all(flattenFeedEntries().map(fetchOne))
+```
+
+`fetchOne` 内部会捕获错误并返回空文章列表，所以聚合层可以继续合并成功来源。全部文章最后按发布时间倒序排序，每个来源最多取 10 篇，总量最多保留 100 篇。
+
+## 前端展示
+
+前端展示在 `src/components/friends/FriendsClient.tsx`，页面入口是 `src/app/friends/page.tsx`。
+
+### 时间线、搜索与筛选
+
+`/api/friends` 返回的数据主要有两部分：
+
+- `items`：聚合后的文章列表。
+- `sources`：每个 Feed 来源的拉取状态。
+
+`items` 会渲染成时间线卡片，包含作者头像、作者名、发布时间、标题、摘要、技术标签和封面图。没有封面的文章会退化成纯文本卡片，不强行塞一张无关图片。
+
+页面还提供了搜索和作者筛选。搜索范围包括标题、摘要、作者和站点名；作者筛选则从当前文章列表里生成选项。
+
+为了避免首屏一次渲染太多内容，页面初始展示 12 篇文章，滚动到底部后再继续展示 12 篇。信息流的加载节奏很重要，一上来把 100 篇全拍出来，用户和浏览器都不一定开心。
+
+### 来源失败时的降级
+
+Friends 页依赖外部站点，所以失败是常态，不是异常。
+
+有的朋友可能改了 Feed 地址，有的站点可能临时打不开，有的请求可能超时。页面不能因为一个来源失败，就把整条时间线清空。
+
+所以前端会根据 `sources` 计算成功和失败数量。只要还有成功拉取到的文章，就正常展示；如果有部分来源失败，只给一个提示：
+
+```text
+部分来源暂时不可用，页面已显示成功拉取的文章。
+```
+
+这就是这个功能最重要的体验原则：能显示多少就显示多少，不因为局部失败扩大成整体失败。
+
+## 小结
+
+Friends 页听起来像是“拉 RSS 然后展示”，但真正要注意的是边界。
+
+不要盲目追求自动发现，手动维护 Feed 在个人博客里更可控；不要每次访问都请求所有来源，缓存和 pending request 合并能减少不必要的压力；不要假设所有 Feed 都稳定，失败降级才是外部聚合功能的基本礼貌。
+
+目前本站采用的是一个轻量方案：无数据库、无定时爬虫、无自动发现，只在访问时聚合朋友们的 Feed，并用 5 分钟缓存兜住请求成本。
+
+它不算复杂，但刚好能让友链从静态名单变成一条会流动的时间线。
