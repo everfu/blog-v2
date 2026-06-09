@@ -33,8 +33,8 @@ export const siteConfig = {
   },
 
   comment: {
-    envId: 'https://api.efu.me/tk/',
-    scriptSrc: 'https://cdn.bootcdn.net/ajax/libs/twikoo/1.6.44/twikoo.min.js',
+    envId: 'https://cm.efu.me',
+    scriptSrc: 'https://open.lightxi.com/unpkg/twikoo@1.7.11/dist/twikoo.min.js',
     options: {},
   },
 

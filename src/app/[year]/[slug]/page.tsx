@@ -205,7 +205,7 @@ export default async function PostPage({ params }: PageProps) {
         </section>
       )}
 
-      <Comment />
+      <Comment path={getPostHref(post)} />
     </div>
   )
 }

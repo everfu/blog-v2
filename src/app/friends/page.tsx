@@ -1,5 +1,6 @@
 import FriendsClient from '@/components/friends/FriendsClient'
 import { SectionDivider } from '@/components/common'
+import { Comment } from '@/components/ui'
 
 export const metadata = {
   title: 'Friends',
@@ -25,6 +26,10 @@ export default function FriendsPage() {
       <SectionDivider />
 
       <FriendsClient />
+
+      <SectionDivider />
+
+      <Comment path="/friends" title="朋友动态留言" className="friends-comment-section" />
     </div>
   )
 }

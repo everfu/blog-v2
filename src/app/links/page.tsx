@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { feedGroups, getFriendAvatar } from '@/data/feeds'
 import { SectionDivider } from '@/components/common'
+import { Comment } from '@/components/ui'
 import type { FeedEntry, FeedGroup } from '@/types/feed'
 
 export const metadata = {
@@ -181,6 +182,10 @@ export default function LinksPage() {
           </section>
         ))}
       </div>
+
+      <SectionDivider />
+
+      <Comment path="/links" title="留言" />
     </div>
   )
 }
