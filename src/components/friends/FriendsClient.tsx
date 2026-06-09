@@ -4,14 +4,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FriendItem, FriendsResponse } from '@/types/feed'
 import { DEFAULT_FRIEND_AVATAR } from '@/data/feeds'
 import { formatDate } from '@/lib/utils'
+import { siteConfig } from '@/config/site'
 
 interface FriendsClientProps {
   initialData?: FriendsResponse
 }
 
 const ALL_AUTHORS = 'ALL'
-const INITIAL_VISIBLE_COUNT = 12
-const VISIBLE_INCREMENT = 12
+const INITIAL_VISIBLE_COUNT = siteConfig.friends.initialVisibleCount
+const VISIBLE_INCREMENT = siteConfig.friends.visibleIncrement
 
 function getAuthorLabel(item: Pick<FriendItem, 'author' | 'sitenick'>) {
   return item.sitenick || item.author
@@ -147,9 +148,8 @@ export default function FriendsClient({ initialData }: FriendsClientProps) {
   const [isLoading, setIsLoading] = useState(!initialData)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT)
+  const [visibleCount, setVisibleCount] = useState<number>(INITIAL_VISIBLE_COUNT)
   const dataRef = useRef<FriendsResponse | null>(initialData ?? null)
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
 
   const loadFriends = useCallback(async () => {
     const hasData = Boolean(dataRef.current)
@@ -219,27 +219,9 @@ export default function FriendsClient({ initialData }: FriendsClientProps) {
 
   const hasMore = visibleCount < filteredItems.length
 
-  useEffect(() => {
-    const node = sentinelRef.current
-
-    if (!node || !hasMore) {
-      return
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-      if (entries[0]?.isIntersecting) {
-        setVisibleCount(count => Math.min(count + VISIBLE_INCREMENT, filteredItems.length))
-      }
-    }, {
-      rootMargin: '360px 0px',
-    })
-
-    observer.observe(node)
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [filteredItems.length, hasMore])
+  const loadMore = useCallback(() => {
+    setVisibleCount(count => Math.min(count + VISIBLE_INCREMENT, filteredItems.length))
+  }, [filteredItems.length])
 
   const okSources = sources.filter(source => source.ok).length
   const failedSources = sources.length - okSources
@@ -328,9 +310,15 @@ export default function FriendsClient({ initialData }: FriendsClientProps) {
           </section>
 
           {hasMore && (
-            <div ref={sentinelRef} className="flex items-center justify-center py-4 text-xs text-muted">
-              <span className="mr-2 h-3 w-3 rounded-full border border-muted border-t-foreground animate-spin" />
-              Loading more
+            <div className="py-4">
+              <button
+                type="button"
+                onClick={loadMore}
+                className="flex h-10 w-full items-center justify-center gap-2 border border-border bg-card text-xs font-medium uppercase tracking-wide text-muted transition-colors hover:border-primary hover:text-foreground"
+              >
+                <span className="i-lucide-plus h-3.5 w-3.5" />
+                Load more
+              </button>
             </div>
           )}
         </>

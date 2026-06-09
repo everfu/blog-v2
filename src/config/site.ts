@@ -32,6 +32,11 @@ export const siteConfig = {
     stars: 1189,
   },
 
+  friends: {
+    initialVisibleCount: 8,
+    visibleIncrement: 8,
+  },
+
   comment: {
     envId: 'https://cm.efu.me',
     scriptSrc: 'https://open.lightxi.com/unpkg/twikoo@1.7.11/dist/twikoo.min.js',
