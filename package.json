@@ -37,6 +37,7 @@
     "@types/react-dom": "19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.60.1",
     "@typescript-eslint/parser": "^8.60.1",
+    "@unocss/postcss": "66.7.0",
     "@unocss/preset-icons": "66.7.0",
     "@unocss/reset": "^66.7.0",
     "critters": "^0.0.25",

@@ -91,6 +91,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^8.60.1
         version: 8.60.1(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
+      '@unocss/postcss':
+        specifier: 66.7.0
+        version: 66.7.0(postcss@8.5.15)
       '@unocss/preset-icons':
         specifier: 66.7.0
         version: 66.7.0
@@ -111,7 +114,7 @@ importers:
         version: 5.9.3
       unocss:
         specifier: ^66.7.0
-        version: 66.7.0(vite@5.4.21(@types/node@20.19.41))
+        version: 66.7.0(@unocss/postcss@66.7.0(postcss@8.5.15))(vite@5.4.21(@types/node@20.19.41))
 
 packages:
 
@@ -1108,6 +1111,11 @@ packages:
 
   '@unocss/inspector@66.7.0':
     resolution: {integrity: sha512-W1MOO2d/1ZHwFR8+mrUUW6KW3MgJ6FdrSWfWeQ1+fgb0TVj8CweNzeSh46sTEXEcpvlui5mnGYFxanpLMoyOtA==}
+
+  '@unocss/postcss@66.7.0':
+    resolution: {integrity: sha512-cRq9vU+H0+bzuV9TI9EAsLp8bSO48aflrizAL98Vq8olFs6gRMZkG2z7xbuH32IrqQ8AZY8yWv+YWzJ0M9YASQ==}
+    peerDependencies:
+      postcss: ^8.4.21
 
   '@unocss/preset-attributify@66.7.0':
     resolution: {integrity: sha512-n8ikthHHkAOeHWUwqRNIMGijV6LuIhiZb3D6kreV3oK98wJYupGNGYMByx7R9gQD9uBNLGs0f1jsaAScV3S2Sw==}
@@ -4009,6 +4017,15 @@ snapshots:
       gzip-size: 6.0.0
       sirv: 3.0.2
 
+  '@unocss/postcss@66.7.0(postcss@8.5.15)':
+    dependencies:
+      '@unocss/config': 66.7.0
+      '@unocss/core': 66.7.0
+      '@unocss/rule-utils': 66.7.0
+      css-tree: 3.2.1
+      postcss: 8.5.15
+      tinyglobby: 0.2.17
+
   '@unocss/preset-attributify@66.7.0':
     dependencies:
       '@unocss/core': 66.7.0
@@ -6667,7 +6684,7 @@ snapshots:
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
 
-  unocss@66.7.0(vite@5.4.21(@types/node@20.19.41)):
+  unocss@66.7.0(@unocss/postcss@66.7.0(postcss@8.5.15))(vite@5.4.21(@types/node@20.19.41)):
     dependencies:
       '@unocss/cli': 66.7.0
       '@unocss/core': 66.7.0
@@ -6686,6 +6703,8 @@ snapshots:
       '@unocss/transformer-directives': 66.7.0
       '@unocss/transformer-variant-group': 66.7.0
       '@unocss/vite': 66.7.0(vite@5.4.21(@types/node@20.19.41))
+    optionalDependencies:
+      '@unocss/postcss': 66.7.0(postcss@8.5.15)
     transitivePeerDependencies:
       - vite
 
