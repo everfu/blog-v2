@@ -107,7 +107,7 @@ export const feedGroups: FeedGroup[] = [
         link: 'https://ooowl.net/',
         icon: getFavicon('ooowl.net'),
         desc: 'Frederick的博客，记录生活点滴',
-        archs: ['Hexo', 'Astro'],
+        archs: ['Astro', 'Server'],
         date: '2026-06-02',
         feed: 'https://ooowl.net/atom.xml',
       }

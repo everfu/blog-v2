@@ -20,6 +20,7 @@ function getArchClass(arch: string) {
     Astro: 'i-catppuccin-astro',
     Vercel: 'i-ri-vercel-line',
     '国内 CDN': 'i-twemoji-flag-china',
+    Server: 'i-logos-nginx',
   }
 
   return map[arch] || 'i-lucide-tag'

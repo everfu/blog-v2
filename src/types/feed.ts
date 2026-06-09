@@ -1,4 +1,4 @@
-export type FeedArch = 'Cloudflare' | 'Hexo' | 'Astro' | 'Nuxt' | 'Vue' | 'Vercel' | '国内 CDN'
+export type FeedArch = 'Cloudflare' | 'Hexo' | 'Astro' | 'Nuxt' | 'Vue' | 'Vercel' | '国内 CDN' | 'Server'
 
 export interface FeedEntry {
   author: string
