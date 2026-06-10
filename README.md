@@ -47,7 +47,6 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-ADMIN_GITHUB_USERNAMES=your_github_username
 ```
 
 ### Development

@@ -1,33 +1,61 @@
-import type { User } from '@supabase/supabase-js'
+import type { SupabaseClient, User } from '@supabase/supabase-js'
 import { isSupabaseConfigured } from '@/lib/supabase/config'
 import { createClient } from '@/lib/supabase/server'
+import type { Database } from '@/types/supabase'
 
-function parseList(value?: string) {
-  return (value || '')
-    .split(',')
-    .map(item => item.trim().toLowerCase())
-    .filter(Boolean)
+type ProfileRow = Pick<
+  Database['public']['Tables']['profiles']['Row'],
+  'id' | 'github_username' | 'display_name' | 'avatar_url' | 'role'
+>
+
+export interface CurrentAdmin {
+  id: string
+  email: string | null
+  githubUsername: string | null
+  displayName: string | null
+  avatarUrl: string | null
+  user: User
+  profile: ProfileRow
 }
 
-export function isAdminUser(user: User | null) {
-  if (!user) return false
+export function toCurrentAdmin(user: User, profile: ProfileRow): CurrentAdmin | null {
+  if (profile.role !== 'admin') return null
 
-  const githubUsernames = parseList(process.env.ADMIN_GITHUB_USERNAMES)
-  const adminEmails = parseList(process.env.ADMIN_EMAILS)
-  const githubUsername = String(user.user_metadata?.user_name || '').toLowerCase()
-  const email = (user.email || '').toLowerCase()
+  return {
+    id: user.id,
+    email: user.email ?? null,
+    githubUsername: profile.github_username,
+    displayName: profile.display_name,
+    avatarUrl: profile.avatar_url,
+    user,
+    profile,
+  }
+}
 
-  return (
-    (githubUsername && githubUsernames.includes(githubUsername)) ||
-    (email && adminEmails.includes(email))
-  )
+export async function getAdminFromUser(
+  supabase: SupabaseClient<Database>,
+  user: User | null
+) {
+  if (!user) return null
+
+  const { data: profile, error } = await supabase
+    .from('profiles')
+    .select('id, github_username, display_name, avatar_url, role')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (error || !profile) return null
+
+  return toCurrentAdmin(user, profile)
 }
 
 export async function getCurrentAdmin() {
   if (!isSupabaseConfigured) return null
 
   const supabase = await createClient()
-  const { data } = await supabase.auth.getUser()
+  const { data, error } = await supabase.auth.getUser()
 
-  return isAdminUser(data.user) ? data.user : null
+  if (error) return null
+
+  return getAdminFromUser(supabase, data.user)
 }

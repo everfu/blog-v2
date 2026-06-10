@@ -1,4 +1,3 @@
-import AdminNav from '@/components/admin/AdminNav'
 import { updateCommentStatus } from '@/app/admin/actions'
 import { getAdminComments } from '@/features/comments'
 import { requireAdminPage } from '@/lib/auth/require-admin'
@@ -10,26 +9,28 @@ export default async function AdminCommentsPage() {
   const comments = await getAdminComments()
 
   return (
-    <section>
-      <h2 className="section-title">
-        01 / <span className="text-foreground">COMMENT ADMIN</span>
-      </h2>
-      <AdminNav />
-      <div className="mx-4 mb-10 divide-y divide-border border border-border md:mx-8">
+    <section className="space-y-5">
+      <div className="border-b border-border pb-5">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted">Comments</p>
+        <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">评论审核</h2>
+        <p className="mt-1 text-sm text-muted">{comments.length} comments in the moderation queue</p>
+      </div>
+
+      <div className="space-y-3">
         {comments.map(comment => (
-          <article key={comment.id} className="p-4">
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-              <div>
+          <article key={comment.id} className="border border-border bg-card p-4 md:p-5">
+            <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0">
                 <div className="text-sm font-medium text-foreground">{comment.authorName}</div>
                 <div className="mt-1 text-xs text-muted">
                   {comment.pagePath} · {new Date(comment.createdAt).toLocaleString('zh-CN')}
                 </div>
               </div>
-              <span className="border border-border px-2 py-0.5 text-[10px] uppercase text-muted">
+              <span className="border border-border bg-background px-2 py-1 text-[10px] uppercase text-muted">
                 {comment.status}
               </span>
             </div>
-            <p className="mb-4 whitespace-pre-wrap break-words text-sm leading-relaxed text-foreground">
+            <p className="mb-4 whitespace-pre-wrap break-words border border-border bg-background p-4 text-sm leading-relaxed text-foreground">
               {comment.body}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -40,7 +41,7 @@ export default async function AdminCommentsPage() {
                   <button
                     type="submit"
                     disabled={comment.status === status}
-                    className="border border-border px-2 py-1 text-xs text-muted hover:border-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                    className="h-8 border border-border px-3 text-xs text-muted hover:border-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {status}
                   </button>
@@ -50,7 +51,7 @@ export default async function AdminCommentsPage() {
           </article>
         ))}
         {comments.length === 0 && (
-          <div className="p-8 text-center text-sm text-muted">No comments yet.</div>
+          <div className="border border-border bg-card p-10 text-center text-sm text-muted">No comments yet.</div>
         )}
       </div>
     </section>

@@ -125,7 +125,7 @@ a:hover {
 }
 
 /* Vertical border lines */
-body::before {
+.site-shell::before {
   content: '';
   position: fixed;
   top: 0;
@@ -140,7 +140,7 @@ body::before {
 }
 
 @media (max-width: 780px) {
-  body::before {
+  .site-shell::before {
     width: calc(100vw - 2rem);
     min-width: 320px;
   }

@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation'
-import AdminNav from '@/components/admin/AdminNav'
 import PostEditor from '@/components/admin/PostEditor'
 import { getAdminPostById } from '@/features/posts'
 import { requireAdminPage } from '@/lib/auth/require-admin'
@@ -20,11 +19,12 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
   if (!post) notFound()
 
   return (
-    <section>
-      <h2 className="section-title">
-        01 / <span className="text-foreground">EDIT POST</span>
-      </h2>
-      <AdminNav />
+    <section className="space-y-5">
+      <div className="border-b border-border pb-5">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted">Posts</p>
+        <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">编辑文章</h2>
+        <p className="mt-1 truncate text-sm text-muted">{post.title}</p>
+      </div>
       <PostEditor post={post} />
     </section>
   )

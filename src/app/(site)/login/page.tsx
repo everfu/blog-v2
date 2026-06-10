@@ -30,7 +30,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <div className="border border-border bg-card p-6">
           <h1 className="mb-3 text-xl font-semibold">管理员登录</h1>
           <p className="mb-6 text-sm leading-relaxed text-muted">
-            使用 GitHub 登录后，只有白名单账号可以进入后台。
+            使用 GitHub 登录后，只有 Supabase profile 标记为 admin 的账号可以进入后台。
           </p>
           {error && (
             <p className="mb-4 border-l border-red-400 pl-3 text-sm text-red-400">
