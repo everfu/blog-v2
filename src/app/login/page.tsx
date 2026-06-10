@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getCurrentAdmin } from '@/lib/auth/admin'
+import { getAdminRedirectPath } from '@/lib/auth/redirect'
 import { signInWithGitHub } from './actions'
 
 interface LoginPageProps {
@@ -16,8 +17,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     searchParams,
     getCurrentAdmin(),
   ])
+  const redirectPath = getAdminRedirectPath(next)
 
-  if (admin) redirect(next)
+  if (admin) redirect(redirectPath)
 
   return (
     <section>
@@ -36,7 +38,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             </p>
           )}
           <form action={signInWithGitHub}>
-            <input type="hidden" name="next" value={next} />
+            <input type="hidden" name="next" value={redirectPath} />
             <button
               type="submit"
               className="inline-flex items-center gap-2 border border-border px-4 py-2 text-sm hover:border-foreground"
