@@ -2,9 +2,29 @@
 
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
+import type { MouseEvent } from 'react'
+
+type ThemeChoice = 'system' | 'light' | 'dark'
+
+const THEME_SEQUENCE: ThemeChoice[] = ['system', 'light', 'dark']
+
+const THEME_LABELS: Record<ThemeChoice, string> = {
+  system: 'system',
+  light: 'light',
+  dark: 'dark',
+}
+
+function getNextTheme(theme: ThemeChoice) {
+  const currentIndex = THEME_SEQUENCE.indexOf(theme)
+  return THEME_SEQUENCE[(currentIndex + 1) % THEME_SEQUENCE.length]
+}
+
+function getSystemTheme() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
 
 export function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme()
+  const { theme, resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => setMounted(true), [])
@@ -13,15 +33,23 @@ export function ThemeToggle() {
     return <div className="h-8 w-8" aria-hidden="true" />
   }
 
+  const selectedTheme = (theme ?? 'system') as ThemeChoice
+  const nextTheme = getNextTheme(selectedTheme)
+  const resolvedNextTheme = nextTheme === 'system' ? getSystemTheme() : nextTheme
   const isDark = resolvedTheme === 'dark'
+  const iconClass = selectedTheme === 'system'
+    ? 'i-lucide-monitor-cog text-base'
+    : selectedTheme === 'light'
+      ? 'i-lucide-sun-medium text-base'
+      : 'i-lucide-moon text-base'
+  const label = `Theme: ${THEME_LABELS[selectedTheme]}, switch to ${THEME_LABELS[nextTheme]}`
 
-  const toggleTheme = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const nextTheme = isDark ? 'light' : 'dark'
+  const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
     const isAppearanceTransition =
       'startViewTransition' in document
       && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    if (!isAppearanceTransition) {
+    if (!isAppearanceTransition || resolvedNextTheme === resolvedTheme) {
       setTheme(nextTheme)
       return
     }
@@ -34,7 +62,7 @@ export function ThemeToggle() {
     )
 
     const transition = document.startViewTransition(() => {
-      document.documentElement.setAttribute('data-theme', nextTheme)
+      document.documentElement.setAttribute('data-theme', resolvedNextTheme)
       setTheme(nextTheme)
     })
 
@@ -67,11 +95,11 @@ export function ThemeToggle() {
       type="button"
       className="group relative flex h-8 w-8 shrink-0 items-center justify-center text-foreground transition-opacity hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       onClick={toggleTheme}
-      title="Toggle theme"
-      aria-label="Toggle theme"
+      title={label}
+      aria-label={label}
     >
       <span className="corner opacity-0 group-focus-visible:opacity-100 group-focus-visible:scale-100" />
-      <span className={isDark ? 'i-lucide-sun-medium text-base' : 'i-lucide-moon text-base'} />
+      <span className={iconClass} />
     </button>
   )
 }

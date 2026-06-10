@@ -37,12 +37,6 @@ export const siteConfig = {
     visibleIncrement: 8,
   },
 
-  comment: {
-    envId: 'https://cm.efu.me',
-    scriptSrc: 'https://open.lightxi.com/unpkg/twikoo@1.7.11/dist/twikoo.min.js',
-    options: {},
-  },
-
   liveblocks: {
     publicApiKey: process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY,
   },

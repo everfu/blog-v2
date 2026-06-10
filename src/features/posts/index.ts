@@ -1,15 +1,14 @@
-import fs from 'fs'
-import path from 'path'
 import { cache } from 'react'
-import matter from 'gray-matter'
-import { siteConfig } from '@/config/site'
+import { isSupabaseAdminConfigured, isSupabaseConfigured } from '@/lib/supabase/config'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
+import type { Database, PostStatus } from '@/types/supabase'
 export { getPostHref } from './routes'
 
-const postsDirectory = path.join(process.cwd(), 'content/posts')
-const DEFAULT_POST_DATE = `${siteConfig.copyright.startYear}-01-01`
-const DEFAULT_CATEGORY = 'DAILY'
+type PostRow = Database['public']['Tables']['posts']['Row']
 
 export interface Post {
+  id: string
   year: string
   slug: string
   title: string
@@ -20,9 +19,12 @@ export interface Post {
   category: string
   recent: boolean
   content: string
+  status: PostStatus
+  updatedAt: string
 }
 
 export interface PostMetadata {
+  id: string
   year: string
   slug: string
   title: string
@@ -32,133 +34,135 @@ export interface PostMetadata {
   cover?: string
   category: string
   recent: boolean
+  status: PostStatus
+  updatedAt: string
 }
 
-type PostFrontmatter = {
-  title?: unknown
-  date?: unknown
-  excerpt?: unknown
-  tags?: unknown
-  cover?: unknown
-  category?: unknown
-  recent?: unknown
-}
+export type AdminPost = Post
 
-const isPostFile = (fileName: string) => {
-  const isMarkdown = fileName.endsWith('.md') || fileName.endsWith('.mdx')
-  const isNotReadme = !fileName.toLowerCase().startsWith('readme')
+const postSelect = `
+  id,
+  slug,
+  year,
+  title,
+  excerpt,
+  content,
+  tags,
+  cover,
+  category,
+  status,
+  recent,
+  published_at,
+  created_at,
+  updated_at
+`
 
-  return isMarkdown && isNotReadme
-}
-
-const isPostYearDirectory = (directoryName: string) => /^\d{4}$/.test(directoryName)
-
-const getSlugFromFileName = (fileName: string) => fileName.replace(/\.(md|mdx)$/, '')
-
-const asString = (value: unknown, fallback = '') =>
-  typeof value === 'string' && value.trim() ? value : fallback
-
-const normalizeTags = (value: unknown): string[] => {
-  if (!Array.isArray(value)) return []
-
-  return value
-    .filter((tag): tag is string => typeof tag === 'string')
-    .map(tag => tag.trim())
-    .filter(Boolean)
-}
-
-const normalizeDate = (value: unknown) => {
-  if (value instanceof Date && !Number.isNaN(value.getTime())) {
-    return value.toISOString()
-  }
-
-  if (typeof value === 'string' && !Number.isNaN(new Date(value).getTime())) {
-    return value
-  }
-
-  return DEFAULT_POST_DATE
-}
-
-const createExcerpt = (frontmatterExcerpt: unknown, content: string) =>
-  asString(frontmatterExcerpt, `${content.trim().slice(0, 150)}...`)
-
-function normalizePost(year: string, slug: string, frontmatter: PostFrontmatter, content: string): Post {
+function mapPost(row: PostRow): Post {
   return {
-    year,
-    slug,
-    title: asString(frontmatter.title, slug),
-    date: normalizeDate(frontmatter.date),
-    excerpt: createExcerpt(frontmatter.excerpt, content),
-    tags: normalizeTags(frontmatter.tags),
-    cover: asString(frontmatter.cover) || undefined,
-    category: asString(frontmatter.category, DEFAULT_CATEGORY),
-    recent: frontmatter.recent === true,
-    content,
+    id: row.id,
+    year: String(row.year),
+    slug: row.slug,
+    title: row.title,
+    date: row.published_at || row.created_at,
+    excerpt: row.excerpt,
+    tags: row.tags || [],
+    cover: row.cover || undefined,
+    category: row.category,
+    recent: row.recent,
+    content: row.content,
+    status: row.status,
+    updatedAt: row.updated_at,
   }
 }
 
 const toMetadata = ({ content, ...metadata }: Post): PostMetadata => metadata
 
-const sortByDateDesc = <T extends { date: string }>(posts: T[]) =>
-  posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-
-function readPostFile(year: string, fileName: string): Post {
-  const slug = getSlugFromFileName(fileName)
-  const fullPath = path.join(postsDirectory, year, fileName)
-  const fileContents = fs.readFileSync(fullPath, 'utf8')
-  const { data, content } = matter(fileContents)
-
-  return normalizePost(year, slug, data, content)
+function sortByDateDesc<T extends { date: string }>(posts: T[]) {
+  return posts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
 }
 
-export const getAllPosts = cache(function getAllPosts(): PostMetadata[] {
-  if (!fs.existsSync(postsDirectory)) {
-    return []
-  }
+export const getAllPosts = cache(async function getAllPosts(): Promise<PostMetadata[]> {
+  if (!isSupabaseConfigured) return []
 
-  const posts = fs.readdirSync(postsDirectory, { withFileTypes: true })
-    .filter(entry => entry.isDirectory() && isPostYearDirectory(entry.name))
-    .flatMap(({ name: year }) =>
-      fs.readdirSync(path.join(postsDirectory, year))
-        .filter(isPostFile)
-        .map(fileName => readPostFile(year, fileName))
-    )
-    .map(toMetadata)
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('posts')
+    .select(postSelect)
+    .eq('status', 'published')
+    .order('published_at', { ascending: false, nullsFirst: false })
+    .order('created_at', { ascending: false })
 
-  return sortByDateDesc(posts)
+  if (error || !data) return []
+
+  return sortByDateDesc(data.map(mapPost).map(toMetadata))
 })
 
-export function getRecentPosts(limit?: number): PostMetadata[] {
-  const posts = getAllPosts().filter(post => post.recent)
+export async function getRecentPosts(limit?: number): Promise<PostMetadata[]> {
+  const posts = (await getAllPosts()).filter(post => post.recent)
   return typeof limit === 'number' ? posts.slice(0, limit) : posts
 }
 
-export function getMorePosts(): PostMetadata[] {
-  return getAllPosts().filter(post => !post.recent)
+export async function getMorePosts(): Promise<PostMetadata[]> {
+  return (await getAllPosts()).filter(post => !post.recent)
 }
 
-export const getPostBySlug = cache(function getPostBySlug(year: string, slug: string): Post | null {
-  const postPath = getPostPath(year, slug)
-  if (!postPath) return null
+export const getPostBySlug = cache(async function getPostBySlug(
+  year: string,
+  slug: string
+): Promise<Post | null> {
+  if (!isSupabaseConfigured || !/^\d{4}$/.test(year)) return null
 
-  try {
-    const fileContents = fs.readFileSync(postPath, 'utf8')
-    const { data, content } = matter(fileContents)
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('posts')
+    .select(postSelect)
+    .eq('status', 'published')
+    .eq('year', Number(year))
+    .eq('slug', slug)
+    .maybeSingle()
 
-    return normalizePost(year, slug, data, content)
-  } catch {
-    return null
-  }
+  if (error || !data) return null
+
+  return mapPost(data)
 })
 
-export const getPostPath = cache(function getPostPath(year: string, slug: string): string | null {
-  if (!isPostYearDirectory(year)) return null
+export async function getAdminPosts(): Promise<AdminPost[]> {
+  if (!isSupabaseAdminConfigured) return []
 
-  const mdxPath = path.join(postsDirectory, year, `${slug}.mdx`)
-  const mdPath = path.join(postsDirectory, year, `${slug}.md`)
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('posts')
+    .select(postSelect)
+    .order('updated_at', { ascending: false })
 
-  if (fs.existsSync(mdxPath)) return mdxPath
-  if (fs.existsSync(mdPath)) return mdPath
+  if (error || !data) return []
 
-  return null
-})
+  return data.map(mapPost)
+}
+
+export async function getAdminPostById(id: string): Promise<AdminPost | null> {
+  if (!isSupabaseAdminConfigured) return null
+
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('posts')
+    .select(postSelect)
+    .eq('id', id)
+    .maybeSingle()
+
+  if (error || !data) return null
+
+  return mapPost(data)
+}
+
+export async function getPostCountByStatus() {
+  const posts = await getAdminPosts()
+
+  return posts.reduce<Record<PostStatus, number>>(
+    (counts, post) => {
+      counts[post.status] += 1
+      return counts
+    },
+    { draft: 0, published: 0, archived: 0 }
+  )
+}

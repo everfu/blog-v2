@@ -2,8 +2,8 @@ import { getRecentPosts } from '@/features/posts'
 import { PostCard } from '@/components/posts'
 import { SectionDivider } from '@/components/common'
 
-export default function RecentPostsSection() {
-  const posts = getRecentPosts()
+export default async function RecentPostsSection() {
+  const posts = await getRecentPosts()
 
   return (
     <section>

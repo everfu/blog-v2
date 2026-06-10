@@ -2,10 +2,14 @@ import { getAllPosts, getMorePosts, getRecentPosts } from '@/features/posts'
 import { PostCardLarge, PostsClient } from '@/components/posts'
 import { SectionDivider } from '@/components/common'
 
-export default function PostsPage() {
-  const allPosts = getAllPosts()
-  const recentPosts = getRecentPosts(3)
-  const allMorePosts = getMorePosts()
+export const dynamic = 'force-dynamic'
+
+export default async function PostsPage() {
+  const [allPosts, recentPosts, allMorePosts] = await Promise.all([
+    getAllPosts(),
+    getRecentPosts(3),
+    getMorePosts(),
+  ])
 
   return (
     <div className="space-y-0">

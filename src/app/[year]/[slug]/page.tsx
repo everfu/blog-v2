@@ -21,18 +21,11 @@ interface PageProps {
   }>
 }
 
-export async function generateStaticParams() {
-  const posts = getAllPosts()
-
-  return posts.map((post) => ({
-    year: post.year,
-    slug: post.slug,
-  }))
-}
+export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: PageProps) {
   const { year, slug } = await params
-  const post = getPostBySlug(year, slug)
+  const post = await getPostBySlug(year, slug)
   
   if (!post) {
     return {
@@ -78,8 +71,10 @@ export async function generateMetadata({ params }: PageProps) {
 
 export default async function PostPage({ params }: PageProps) {
   const { year, slug } = await params
-  const allPosts = getAllPosts()
-  const post = getPostBySlug(year, slug)
+  const [allPosts, post] = await Promise.all([
+    getAllPosts(),
+    getPostBySlug(year, slug),
+  ])
 
   if (!post) {
     notFound()
@@ -205,7 +200,7 @@ export default async function PostPage({ params }: PageProps) {
         </section>
       )}
 
-      <Comment path={getPostHref(post)} />
+      <Comment path={getPostHref(post)} postId={post.id} />
     </div>
   )
 }

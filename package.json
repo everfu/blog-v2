@@ -6,11 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "import:posts": "node scripts/import-posts-to-supabase.mjs"
   },
   "dependencies": {
     "@liveblocks/client": "^3.19.4",
     "@liveblocks/react": "^3.19.4",
+    "@supabase/ssr": "^0.12.0",
+    "@supabase/supabase-js": "^2.108.1",
     "@types/mdast": "^4.0.4",
     "@types/mdx": "^2.0.13",
     "date-fns": "^4.4.0",
@@ -26,7 +29,8 @@
     "remark-gfm": "^4.0.1",
     "shiki": "^3.23.0",
     "unist-util-visit": "^5.1.0",
-    "yet-another-react-lightbox": "^3.32.0"
+    "yet-another-react-lightbox": "^3.32.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",

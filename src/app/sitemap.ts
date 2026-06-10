@@ -3,8 +3,10 @@ import { siteConfig } from '@/config/site'
 import { absoluteUrl } from '@/config/site-utils'
 import { getAllPosts, getPostHref } from '@/features/posts'
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  const posts = getAllPosts()
+export const revalidate = 300
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const posts = await getAllPosts()
 
   const postUrls = posts.map((post) => ({
     url: absoluteUrl(getPostHref(post)),
