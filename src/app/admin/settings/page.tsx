@@ -1,8 +1,11 @@
 import AdminNav from '@/components/admin/AdminNav'
+import { requireAdminPage } from '@/lib/auth/require-admin'
 
 export const dynamic = 'force-dynamic'
 
-export default function AdminSettingsPage() {
+export default async function AdminSettingsPage() {
+  await requireAdminPage('/admin/settings')
+
   return (
     <section>
       <h2 className="section-title">

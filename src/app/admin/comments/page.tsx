@@ -1,10 +1,12 @@
 import AdminNav from '@/components/admin/AdminNav'
 import { updateCommentStatus } from '@/app/admin/actions'
 import { getAdminComments } from '@/features/comments'
+import { requireAdminPage } from '@/lib/auth/require-admin'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminCommentsPage() {
+  await requireAdminPage('/admin/comments')
   const comments = await getAdminComments()
 
   return (

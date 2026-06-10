@@ -1,11 +1,13 @@
 import Link from 'next/link'
 import AdminNav from '@/components/admin/AdminNav'
 import { getAdminPosts, getPostHref } from '@/features/posts'
+import { requireAdminPage } from '@/lib/auth/require-admin'
 import { formatDate } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminPostsPage() {
+  await requireAdminPage('/admin/posts')
   const posts = await getAdminPosts()
 
   return (

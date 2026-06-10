@@ -1,13 +1,13 @@
 import AdminNav from '@/components/admin/AdminNav'
 import { getPostCountByStatus } from '@/features/posts'
 import { getCommentCountByStatus } from '@/features/comments'
-import { getCurrentAdmin } from '@/lib/auth/admin'
+import { requireAdminPage } from '@/lib/auth/require-admin'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminPage() {
-  const [admin, posts, comments] = await Promise.all([
-    getCurrentAdmin(),
+  const admin = await requireAdminPage('/admin')
+  const [posts, comments] = await Promise.all([
     getPostCountByStatus(),
     getCommentCountByStatus(),
   ])
