@@ -1,5 +1,6 @@
 import PostEditor from '@/components/admin/PostEditor'
 import { requireAdminPage } from '@/lib/auth/require-admin'
+import { AdminPageHeader } from '@/components/admin/AdminPrimitives'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,11 +9,7 @@ export default async function NewPostPage() {
 
   return (
     <section className="space-y-5">
-      <div className="border-b border-border pb-5">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted">Posts</p>
-        <h2 className="mt-1 text-2xl font-semibold tracking-tight text-foreground">新建文章</h2>
-        <p className="mt-1 text-sm text-muted">创建一篇新的 MDX 内容。</p>
-      </div>
+      <AdminPageHeader eyebrow="内容 / 文章管理" title="新建文章" description="创建一篇新的 MDX 内容。" />
       <PostEditor />
     </section>
   )
