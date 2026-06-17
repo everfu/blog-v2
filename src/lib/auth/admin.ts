@@ -1,5 +1,6 @@
-import type { SupabaseClient, User } from '@supabase/supabase-js'
-import { isSupabaseConfigured } from '@/lib/supabase/config'
+import type { User } from '@supabase/supabase-js'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { isSupabaseAdminConfigured, isSupabaseConfigured } from '@/lib/supabase/config'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
 
@@ -33,12 +34,13 @@ export function toCurrentAdmin(user: User, profile: ProfileRow): CurrentAdmin | 
 }
 
 export async function getAdminFromUser(
-  supabase: SupabaseClient<Database>,
   user: User | null
 ) {
   if (!user) return null
+  if (!isSupabaseAdminConfigured) return null
 
-  const { data: profile, error } = await supabase
+  const admin = createAdminClient()
+  const { data: profile, error } = await admin
     .from('profiles')
     .select('id, github_username, display_name, avatar_url, role')
     .eq('id', user.id)
@@ -57,5 +59,5 @@ export async function getCurrentAdmin() {
 
   if (error) return null
 
-  return getAdminFromUser(supabase, data.user)
+  return getAdminFromUser(data.user)
 }

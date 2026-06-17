@@ -34,7 +34,7 @@ export async function updateSession(request: NextRequest) {
 
   if (
     request.nextUrl.pathname.startsWith('/admin') &&
-    !(await getAdminFromUser(supabase, data.user))
+    !(await getAdminFromUser(data.user))
   ) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
