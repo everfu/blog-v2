@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import type { PostMetadata } from '@/features/posts'
+import type { PostMetadata } from '@/server/posts/contracts/types'
 import PostCardSmall from './PostCardSmall'
 
 const POSTS_PER_PAGE = 8

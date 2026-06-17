@@ -14,15 +14,14 @@ export default function Footer() {
 
   return (
     <footer className="relative">
-      <div className="max-w-[780px] mx-auto">
+      <div className="max-w-site mx-auto">
         <SectionDivider />
       </div>
-      <div className="max-w-[780px] mx-auto px-4 md:px-8 py-8">
+      <div className="max-w-site mx-auto px-4 md:px-8 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
             <p className="text-xs text-muted">
               {siteConfig.copyright.startYear} - {currentYear} {siteConfig.author.name}. All rights reserved.
-              Design by <a href="https://suus.me" target="_blank" rel="noopener noreferrer">suss.me</a>
             </p>
             <OnlineCount />
           </div>

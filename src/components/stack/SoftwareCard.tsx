@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import type { SoftwareItem } from '@/data/software'
+import type { SoftwareItem } from '@/types'
 
 interface SoftwareCardProps {
   item: SoftwareItem

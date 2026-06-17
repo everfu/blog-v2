@@ -1,4 +1,7 @@
 export { default as PostCard } from './PostCard'
 export { default as PostCardLarge } from './PostCardLarge'
 export { default as PostCardSmall } from './PostCardSmall'
+export { default as PostMetrics } from './PostMetrics'
+export { default as PostStats } from './PostStats'
 export { default as PostsClient } from './PostsClient'
+export { default as ScrollToTopButton } from './ScrollToTopButton'

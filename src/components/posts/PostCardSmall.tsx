@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import type { PostMetadata } from '@/features/posts'
-import { getPostHref } from '@/features/posts/routes'
+import type { PostMetadata } from '@/server/posts/contracts/types'
+import { getPostHref } from '@/server/posts/contracts/routes'
 import { formatDate, getCategoryColor } from '@/lib/utils'
+import PostStats from './PostStats'
 
 interface PostCardSmallProps {
   post: PostMetadata
@@ -27,7 +28,7 @@ export default function PostCardSmall({ post }: PostCardSmallProps) {
         </div>
 
         {/* 底部：时间分类 和 阅读 */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <time className="text-xs text-muted">
               {dateStr}
@@ -36,7 +37,7 @@ export default function PostCardSmall({ post }: PostCardSmallProps) {
               {post.category || 'DAILY'}
             </span>
           </div>
-          <span className="text-xs text-muted">阅读 →</span>
+          <PostStats viewCount={post.viewCount} likeCount={post.likeCount} />
         </div>
       </article>
     </Link>

@@ -1,8 +1,11 @@
 import { SectionDivider } from '@/components/common'
 import AlbumClient from '@/components/album/AlbumClient'
-import { albumCategories } from '@/data/album'
+import { getAlbumCategories } from '@/server/content/adapters/page'
 
-export default function AlbumPage() {
+export const revalidate = 300
+
+export default async function AlbumPage() {
+  const albumCategories = await getAlbumCategories()
   const collectionCount = albumCategories.length
 
   return (

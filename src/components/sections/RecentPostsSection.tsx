@@ -1,14 +1,22 @@
-import { getRecentPosts } from '@/features/posts'
+import { getRecentPosts } from '@/server/posts/adapters/page'
 import { PostCard } from '@/components/posts'
 import { SectionDivider } from '@/components/common'
 
-export default async function RecentPostsSection() {
-  const posts = await getRecentPosts()
+export default async function RecentPostsSection({
+  title = 'Recent Posts',
+  limit,
+  indexLabel = '02',
+}: {
+  title?: string
+  limit?: number
+  indexLabel?: string
+}) {
+  const posts = await getRecentPosts(limit)
 
   return (
     <section>
       <h2 className="section-title">
-        02 / <span className="text-foreground">RECENT POSTS</span>
+        {indexLabel} / <span className="text-foreground">{title.toUpperCase()}</span>
       </h2>
       <SectionDivider />
       

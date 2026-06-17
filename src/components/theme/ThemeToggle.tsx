@@ -1,8 +1,8 @@
 "use client"
 
-import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
 import type { MouseEvent } from 'react'
+import { useTheme } from './ThemeProvider'
 
 type ThemeChoice = 'system' | 'light' | 'dark'
 
@@ -23,7 +23,7 @@ function getSystemTheme() {
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
-export function ThemeToggle() {
+export function ThemeToggle({ className = '' }: { className?: string }) {
   const { theme, resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
@@ -42,7 +42,7 @@ export function ThemeToggle() {
     : selectedTheme === 'light'
       ? 'i-lucide-sun-medium text-base'
       : 'i-lucide-moon text-base'
-  const label = `Theme: ${THEME_LABELS[selectedTheme]}, switch to ${THEME_LABELS[nextTheme]}`
+  const label = `当前主题：${THEME_LABELS[selectedTheme]}，切换至 ${THEME_LABELS[nextTheme]}`
 
   const toggleTheme = (event: MouseEvent<HTMLButtonElement>) => {
     const isAppearanceTransition =
@@ -93,7 +93,7 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      className="group relative flex h-8 w-8 shrink-0 items-center justify-center text-foreground transition-opacity hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      className={`group relative flex h-8 w-8 shrink-0 items-center justify-center text-foreground transition-opacity hover:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary ${className}`}
       onClick={toggleTheme}
       title={label}
       aria-label={label}

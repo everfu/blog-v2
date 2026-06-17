@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { HardwareItem } from '@/data/hardware'
+import type { HardwareItem } from '@/types'
 import { cn } from '@/lib/utils'
 
 interface HardwareCardProps {

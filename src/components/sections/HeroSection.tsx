@@ -1,50 +1,74 @@
 import Link from 'next/link'
 import { SectionDivider } from '@/components/common'
-import { siteConfig } from '@/config/site'
+import { DEFAULT_HERO_METADATA, parseHeroMetadata } from '@/server/home/adapters/page'
+import type { Json } from '@/types/supabase'
 
-export default function HeroSection() {
+function renderMarkedText(text: string, markedClassName: string) {
+  const lines = text.split('\n')
+
+  return lines.map((line, lineIndex) => (
+    <span key={`${line}-${lineIndex}`}>
+      {line.split(/(`[^`]+`)/g).map((part, partIndex) => {
+        const marked = part.startsWith('`') && part.endsWith('`')
+        const text = marked ? part.slice(1, -1) : part
+
+        return marked ? (
+          <span key={`${part}-${partIndex}`} className={markedClassName}>
+            {text}
+          </span>
+        ) : (
+          text
+        )
+      })}
+      {lineIndex < lines.length - 1 && <br />}
+    </span>
+  ))
+}
+
+export default function HeroSection({
+  title = 'Home',
+  metadata = DEFAULT_HERO_METADATA as unknown as Json,
+  indexLabel = '01',
+}: {
+  title?: string
+  subtitle?: string
+  metadata?: Json
+  indexLabel?: string
+}) {
+  const config = parseHeroMetadata(metadata)
+
   return (
     <section>
       <h2 className="section-title">
-        01 / <span className="text-foreground">HOME</span>
+        {indexLabel} / <span className="text-foreground">{title.toUpperCase()}</span>
       </h2>
       <SectionDivider />
       
       <div className="grid md:grid-cols-2 gap-12 items-start mx-4 md:mx-8 my-8">
-        {/* 左侧：标题和介绍 */}
         <div>
           <h1 className="text-2xl md:text-3xl leading-snug mb-6">
-            A nook where <span className="text-muted font-bold">thoughts</span>
-            <br />
-            &amp; <span className="text-muted font-bold">ideas</span> sometimes
-            <br />
-            echo
+            {renderMarkedText(config.headline, 'font-bold text-muted')}
           </h1>
           
           <div className="flex gap-3">
             <Link 
-              href={siteConfig.author.url}
+              href={config.buttonHref}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-block border border-foreground bg-white px-3 py-2 transition-colors cursor-pointer font-medium text-xs uppercase tracking-wide relative group text-black rounded-sm"
             >
               <span className="corner" />
-              ABOUT ME
+              {config.buttonLabel}
             </Link>
           </div>
         </div>
 
-        {/* 右侧：关于我 */}
         <div className="text-sm text-muted leading-relaxed">
-          <p>
-            Self-taught developer passionate about open source. 
-            Creator of <span className="font-medium text-foreground">{siteConfig.stats.repositories} repositories</span> with 
-            <span className="font-medium text-foreground"> {siteConfig.stats.stars.toLocaleString()} stars</span> on GitHub.
-          </p>
-          <p className="mt-4">
-            Minimalist obsessed with speed and lightweight solutions. 
-            Photography enthusiast, traveler, and documentary lover.
-          </p>
+          {config.intro.split(/\n{2,}/).map(paragraph => (
+            <p key={paragraph} className="mt-4 first:mt-0">
+              {renderMarkedText(paragraph, 'font-bold text-foreground')}
+            </p>
+          ))}
         </div>
       </div>
     </section>

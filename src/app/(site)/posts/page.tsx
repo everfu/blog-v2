@@ -1,8 +1,8 @@
-import { getAllPosts, getMorePosts, getRecentPosts } from '@/features/posts'
+import { getAllPosts, getMorePosts, getRecentPosts } from '@/server/posts/adapters/page'
 import { PostCardLarge, PostsClient } from '@/components/posts'
 import { SectionDivider } from '@/components/common'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 export default async function PostsPage() {
   const [allPosts, recentPosts, allMorePosts] = await Promise.all([

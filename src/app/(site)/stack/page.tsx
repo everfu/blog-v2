@@ -1,9 +1,12 @@
 import { SectionDivider } from '@/components/common'
 import { HardwareCard, SoftwareCard } from '@/components/stack'
-import { hardwareItems } from '@/data/hardware'
-import { softwareCategories } from '@/data/software'
+import { getStack } from '@/server/content/adapters/page'
 
-export default function StackPage() {
+export const revalidate = 300
+
+export default async function StackPage() {
+  const { hardwareItems, softwareCategories } = await getStack()
+
   return (
     <div className="space-y-0">
       {/* 01 / STACK */}

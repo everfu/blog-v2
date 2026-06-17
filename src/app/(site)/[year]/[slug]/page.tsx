@@ -5,11 +5,12 @@ import Image from 'next/image'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
-import { getAllPosts, getPostBySlug, getPostHref } from '@/features/posts'
+import { getAllPosts, getPostBySlug, getPostHref } from '@/server/posts/adapters/page'
 import { remarkCallout } from '@/lib/remarkCallout'
 import { formatDate, getReadingTime, getCategoryColorWithBorder } from '@/lib/utils'
 import { SectionDivider } from '@/components/common'
 import { mdxComponents } from '@/components/mdx'
+import { PostMetrics } from '@/components/posts'
 import { Comment } from '@/components/ui'
 import { siteConfig } from '@/config/site'
 import { absoluteUrl, toIsoDate } from '@/config/site-utils'
@@ -117,10 +118,16 @@ export default async function PostPage({ params }: PageProps) {
               {readingTime} 分钟
             </span>
             {post.category && (
-              <span className={`px-2 py-0.5 border rounded text-xs ${getCategoryColorWithBorder(post.category)}`}>
+              <span className={`rounded border px-2 py-0.5 text-xs ${getCategoryColorWithBorder(post.category)}`}>
                 {post.category}
               </span>
             )}
+            <PostMetrics
+              postId={post.id}
+              initialViewCount={post.viewCount}
+              initialLikeCount={post.likeCount}
+              readonly
+            />
           </div>
 
           {/* Title and Cover */}
@@ -161,7 +168,7 @@ export default async function PostPage({ params }: PageProps) {
 
       {/* Article Content */}
       <article>
-        <div className="mx-4 md:mx-8 py-8 mdx-content">
+        <div className="mx-4 md:mx-8 pb-8 pt-5 mdx-content">
           <MDXRemote 
             source={post.content} 
             components={mdxComponents}
@@ -173,6 +180,13 @@ export default async function PostPage({ params }: PageProps) {
           />
         </div>
       </article>
+
+      <PostMetrics
+        postId={post.id}
+        initialViewCount={post.viewCount}
+        initialLikeCount={post.likeCount}
+        variant="footer"
+      />
 
       <SectionDivider />
 

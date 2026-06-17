@@ -1,7 +1,9 @@
 import Image from 'next/image'
-import { feedGroups, getFriendAvatar } from '@/data/feeds'
+import { DEFAULT_FRIEND_AVATAR } from '@/features/feeds/utils'
 import { SectionDivider } from '@/components/common'
 import { Comment } from '@/components/ui'
+import FriendApplicationForm from '@/components/friends/FriendApplicationForm'
+import { getFeedGroups, getFriendApplicationSettings } from '@/server/content/adapters/page'
 import type { FeedEntry, FeedGroup } from '@/types/feed'
 
 export const metadata = {
@@ -9,7 +11,7 @@ export const metadata = {
   description: '我的朋友们和帮助过我的人',
 }
 
-const totalLinks = feedGroups.reduce((count, group) => count + group.entries.length, 0)
+export const revalidate = 300
 
 function getArchClass(arch: string) {
   const map: Record<string, string> = {
@@ -62,8 +64,9 @@ function GroupHeader({ group, index }: { group: FeedGroup, index: number }) {
 
 function LinkCard({ link }: { link: FeedEntry }) {
   const title = link.sitenick || link.author
-  const avatar = getFriendAvatar(link)
+  const avatar = link.avatar || link.icon || DEFAULT_FRIEND_AVATAR
   const icon = link.icon || avatar
+  const badgeTitle = link.feedMuted ? '免打扰' : ''
 
   return (
     <a
@@ -85,15 +88,25 @@ function LinkCard({ link }: { link: FeedEntry }) {
               />
             </div>
 
-            <div className="absolute -bottom-1 -right-1 h-5 w-5 overflow-hidden rounded-full border border-border bg-background p-0.5">
-              <Image
-                src={icon}
-                alt=""
-                fill
-                sizes="20px"
-                className="object-cover p-0.5"
-              />
-            </div>
+            {link.feedMuted ? (
+              <div
+                className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border border-border bg-background text-muted"
+                title={badgeTitle}
+                aria-label={badgeTitle}
+              >
+                <span className="i-lucide-bell-off h-3 w-3" />
+              </div>
+            ) : (
+              <div className="absolute -bottom-1 -right-1 h-5 w-5 overflow-hidden rounded-full border border-border bg-background p-0.5">
+                <Image
+                  src={icon}
+                  alt=""
+                  fill
+                  sizes="20px"
+                  className="object-cover p-0.5"
+                />
+              </div>
+            )}
           </div>
 
           <div className="min-w-0 flex-1 pt-0.5">
@@ -140,7 +153,13 @@ function LinkCard({ link }: { link: FeedEntry }) {
   )
 }
 
-export default function LinksPage() {
+export default async function LinksPage() {
+  const [feedGroups, applicationSettings] = await Promise.all([
+    getFeedGroups(),
+    getFriendApplicationSettings(),
+  ])
+  const totalLinks = feedGroups.reduce((count, group) => count + group.entries.length, 0)
+
   return (
     <div className="space-y-5">
       <section>
@@ -186,7 +205,14 @@ export default function LinksPage() {
 
       <SectionDivider />
 
-      <Comment path="/links" title="留言" />
+      {applicationSettings.enabled && (
+        <>
+          <FriendApplicationForm />
+          <SectionDivider />
+        </>
+      )}
+
+      <Comment path="/links" />
     </div>
   )
 }

@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import type { PostMetadata } from '@/features/posts'
-import { getPostHref } from '@/features/posts/routes'
+import type { PostMetadata } from '@/server/posts/contracts/types'
+import { getPostHref } from '@/server/posts/contracts/routes'
 import { formatDate } from '@/lib/utils'
+import PostStats from './PostStats'
 
 interface PostCardProps {
   post: PostMetadata
@@ -35,6 +36,11 @@ export default function PostCard({ post }: PostCardProps) {
           <h3 className="text-sm font-normal leading-relaxed text-foreground group-hover:text-white transition-all duration-500 flex-1">
             {post.title}
           </h3>
+          <PostStats
+            viewCount={post.viewCount}
+            likeCount={post.likeCount}
+            className="mt-4 group-hover:text-white"
+          />
         </div>
       </article>
     </Link>

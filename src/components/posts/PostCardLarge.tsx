@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import type { PostMetadata } from '@/features/posts'
-import { getPostHref } from '@/features/posts/routes'
+import type { PostMetadata } from '@/server/posts/contracts/types'
+import { getPostHref } from '@/server/posts/contracts/routes'
 import { formatDate } from '@/lib/utils'
+import PostStats from './PostStats'
 
 interface PostCardLargeProps {
   post: PostMetadata
@@ -29,6 +30,8 @@ export default function PostCardLarge({ post }: PostCardLargeProps) {
           <p className="text-sm font-medium leading-loose text-muted">
             {post.excerpt}
           </p>
+
+          <PostStats viewCount={post.viewCount} likeCount={post.likeCount} className="mt-5" />
         </div>
 
         <div className="flex items-center justify-center px-6 pb-7 md:w-[48%] md:px-6 md:py-8">

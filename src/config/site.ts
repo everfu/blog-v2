@@ -37,9 +37,6 @@ export const siteConfig = {
     visibleIncrement: 8,
   },
 
-  liveblocks: {
-    publicApiKey: process.env.NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY,
-  },
 } as const
 
 export type SiteConfig = typeof siteConfig

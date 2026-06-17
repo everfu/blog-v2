@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import { siteConfig } from '@/config/site'
 import { absoluteUrl } from '@/config/site-utils'
-import { getAllPosts, getPostHref } from '@/features/posts'
+import { getAllPosts, getPostHref } from '@/server/posts/adapters/page'
 
 export const revalidate = 300
 

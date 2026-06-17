@@ -1,7 +1,7 @@
-import { createOpmlResponse } from '@/features/feeds'
+import { createOpmlResponse } from '@/server/feeds/adapters/http'
 
 export const revalidate = 3600
 
 export async function GET() {
-  return createOpmlResponse('feeds.opml')
+  return await createOpmlResponse('feeds.opml')
 }

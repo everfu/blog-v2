@@ -1,4 +1,4 @@
-import type { WatchedItem } from '@/data/watched'
+import type { WatchedItem } from '@/types'
 
 interface WatchedCardProps {
   item: WatchedItem

@@ -8,7 +8,7 @@ export default function SiteLayout({
   return (
     <div className="site-shell relative min-h-screen px-4 md:px-0">
       <Header />
-      <main className="relative z-10 mx-auto max-w-[780px]">
+      <main className="relative z-10 mx-auto max-w-site">
         {children}
       </main>
       <Footer />

@@ -29,7 +29,7 @@ export default function FriendsPage() {
 
       <SectionDivider />
 
-      <Comment path="/friends" title="朋友动态留言" className="friends-comment-section" />
+      <Comment path="/friends" className="friends-comment-section" />
     </div>
   )
 }
