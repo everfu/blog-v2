@@ -22,17 +22,30 @@ export default defineConfig({
     colors: {
       // 使用 CSS 变量以支持深色模式
       primary: 'var(--color-primary)',
+      'primary-foreground': 'var(--color-primary-foreground)',
       secondary: 'var(--color-muted)',
+      'secondary-foreground': 'var(--color-foreground)',
       accent: 'var(--color-primary)',
+      'accent-foreground': 'var(--color-background)',
       background: 'var(--color-background)',
       foreground: 'var(--color-foreground)',
       card: 'var(--color-card)',
+      'card-foreground': 'var(--color-foreground)',
+      popover: 'var(--color-card)',
+      'popover-foreground': 'var(--color-foreground)',
       muted: 'var(--color-muted)',
+      'muted-foreground': 'var(--color-muted)',
       border: 'var(--color-border)',
+      input: 'var(--color-border)',
+      ring: 'var(--color-primary)',
+      destructive: '#dc2626',
     },
     fontFamily: {
       sans: ['Open Sans', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       mono: ['Geist Mono', 'SF Mono', 'Monaco', 'Consolas', 'monospace'],
+    },
+    maxWidth: {
+      site: 'var(--outer-container-width)',
     },
   },
   shortcuts: {
