@@ -8,6 +8,7 @@ import {
   ExternalLinkIcon,
   FileTextIcon,
   FilmIcon,
+  FingerprintIcon,
   ImageIcon,
   ImagesIcon,
   LayoutDashboardIcon,
@@ -64,6 +65,7 @@ const groups = [
   {
     label: '系统管理',
     items: [
+      { href: '/admin/settings', label: '账号安全', icon: FingerprintIcon },
       { href: '/admin/users', label: '成员权限', icon: UsersRoundIcon },
       { href: '/admin/audit', label: '操作日志', icon: ActivityIcon },
     ],

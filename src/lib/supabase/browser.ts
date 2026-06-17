@@ -7,5 +7,9 @@ import { requireSupabaseConfig } from './config'
 export function createClient() {
   const { supabaseUrl, supabaseAnonKey } = requireSupabaseConfig()
 
-  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey)
+  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      experimental: { passkey: true },
+    },
+  })
 }
