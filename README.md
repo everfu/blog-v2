@@ -5,11 +5,11 @@ A modern, minimalist personal blog built with Next.js 16 and UnoCSS.
 ## Features
 
 - ✨ Clean, minimalist design
-- 📝 MDX support with syntax highlighting (Shiki)
+- 📝 Supabase-backed MDX content with syntax highlighting (Shiki)
 - 🎨 Atomic CSS with UnoCSS
 - 🚀 Next.js 16 App Router
 - 📱 Fully responsive
-- 💬 Real-time online presence (Liveblocks)
+- 💬 Real-time online presence (Supabase Realtime)
 - 🖼️ Photo album with lightbox
 - � RSS feed (Atom)
 - 🗺️ Auto-generated sitemap
@@ -18,10 +18,10 @@ A modern, minimalist personal blog built with Next.js 16 and UnoCSS.
 
 - **Framework**: [Next.js 16](https://nextjs.org/)
 - **Styling**: [UnoCSS](https://unocss.dev/)
-- **Content**: MDX with [next-mdx-remote](https://github.com/hashicorp/next-mdx-remote) + [gray-matter](https://github.com/jonschlinkert/gray-matter)
+- **Content**: Supabase tables rendered with [next-mdx-remote](https://github.com/hashicorp/next-mdx-remote)
 - **Syntax Highlighting**: [Shiki](https://shiki.style/)
 - **Icons**: [Lucide](https://lucide.dev/) via @unocss/preset-icons
-- **Real-time**: [Liveblocks](https://liveblocks.io/)
+- **Real-time**: [Supabase Realtime](https://supabase.com/realtime)
 - **Language**: TypeScript
 
 ## Getting Started
@@ -42,7 +42,6 @@ pnpm install
 Copy `.env.example` to `.env.local` and configure:
 
 ```bash
-NEXT_PUBLIC_LIVEBLOCKS_PUBLIC_KEY=your_liveblocks_public_key
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
@@ -79,12 +78,11 @@ cube-blog/
 │   │   └── sitemap.ts    # Sitemap generator
 │   ├── components/       # React components
 │   ├── config/           # Site configuration
-│   ├── data/             # Static data
 │   ├── features/         # Domain logic
 │   ├── lib/              # Utilities
 │   └── types/            # TypeScript types
-├── content/
-│   └── posts/            # Markdown/MDX posts
+├── supabase/
+│   └── init.sql          # Supabase schema initialization
 ├── uno.config.ts         # UnoCSS configuration
 └── next.config.js        # Next.js configuration
 ```
@@ -107,24 +105,9 @@ export const siteConfig = {
 }
 ```
 
-## Writing Posts
+## Content Management
 
-Create a new `.mdx` file in a year folder under `content/posts/`:
-
-```text
-content/posts/2025/your-post-slug.mdx
-```
-
-```markdown
----
-title: "Your Post Title"
-date: "2024-11-30"
-excerpt: "A brief description"
-tags: ["tag1", "tag2"]
----
-
-Your content here with **MDX** support...
-```
+Initialize Supabase with `supabase/init.sql`, then manage posts, album entries, watched items, stack items, friends, comments, and home sections through the admin pages. Blog post bodies are stored in the `posts.content` column and rendered as MDX.
 
 ## Deployment
 
