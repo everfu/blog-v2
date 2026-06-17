@@ -9,6 +9,7 @@ export interface FeedEntry {
   feed?: string
   icon: string
   avatar?: string
+  feedMuted?: boolean
   archs?: FeedArch[]
   date: string
   comment?: string

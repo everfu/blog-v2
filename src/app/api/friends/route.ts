@@ -1,14 +1,14 @@
-import { getCachedFriends } from '@/features/feeds'
+import { getFriendsSnapshot } from '@/server/friends/adapters/page'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 export async function GET() {
   try {
-    const response = await getCachedFriends()
+    const response = await getFriendsSnapshot()
 
     return Response.json(response, {
       headers: {
-        'Cache-Control': 'public, max-age=300, stale-while-revalidate=3600',
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=3600',
       },
     })
   } catch {

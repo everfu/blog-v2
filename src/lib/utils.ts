@@ -1,5 +1,11 @@
 import { formatDistanceToNow, format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
 
 /** 格式化日期为固定格式（用于服务端组件，避免 hydration 问题） */
 export const formatDate = (date: string): string =>
@@ -31,7 +37,3 @@ export const formatTimeAgo = (date: string, addSuffix = false): string =>
 /** 计算阅读时间（假设每分钟阅读 300 字） */
 export const getReadingTime = (content: string): number =>
   Math.max(1, Math.ceil(content.length / 300))
-
-/** 类名合并工具 */
-export const cn = (...classes: (string | boolean | undefined | null)[]): string =>
-  classes.filter(Boolean).join(' ')

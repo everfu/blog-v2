@@ -1,17 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { getAdminRedirectPath } from '@/lib/auth/redirect'
-import { isSupabaseAdminConfigured, isSupabaseConfigured, requireSupabaseConfig } from '@/lib/supabase/config'
-import { createAdminClient } from '@/lib/supabase/admin'
+import { isSupabaseConfigured, requireSupabaseConfig } from '@/lib/supabase/config'
 import type { Database } from '@/types/supabase'
+import { syncAuthCallbackProfile } from '@/server/users/application/auth-callback'
 
-function readMetadataString(metadata: Record<string, unknown>, keys: string[]) {
-  for (const key of keys) {
-    const value = metadata[key]
-    if (typeof value === 'string' && value.trim()) return value.trim()
-  }
+function redirectToLoginError(origin: string, error: string, details?: URLSearchParams) {
+  const url = new URL('/login', origin)
+  url.searchParams.set('error', error)
 
-  return null
+  details?.forEach((value, key) => {
+    if (key.startsWith('error_')) url.searchParams.set(key, value)
+  })
+
+  return NextResponse.redirect(url)
 }
 
 export async function GET(request: NextRequest) {
@@ -20,8 +22,12 @@ export async function GET(request: NextRequest) {
   const next = getAdminRedirectPath(requestUrl.searchParams.get('next'))
   const origin = requestUrl.origin
 
+  if (requestUrl.searchParams.has('error')) {
+    return redirectToLoginError(origin, 'provider', requestUrl.searchParams)
+  }
+
   if (!isSupabaseConfigured || !code) {
-    return NextResponse.redirect(`${origin}/login?error=callback`)
+    return redirectToLoginError(origin, 'callback')
   }
 
   const { supabaseUrl, supabaseAnonKey } = requireSupabaseConfig()
@@ -42,33 +48,18 @@ export async function GET(request: NextRequest) {
   const { error } = await supabase.auth.exchangeCodeForSession(code)
 
   if (error) {
-    return NextResponse.redirect(`${origin}/login?error=callback`)
-  }
-
-  if (!isSupabaseAdminConfigured) {
-    return NextResponse.redirect(`${origin}/login?error=profile-config`)
+    return redirectToLoginError(origin, 'callback')
   }
 
   const { data: userData, error: userError } = await supabase.auth.getUser()
 
   if (userError || !userData.user) {
-    return NextResponse.redirect(`${origin}/login?error=profile`)
+    return redirectToLoginError(origin, 'profile')
   }
 
-  const metadata = userData.user.user_metadata ?? {}
-  const admin = createAdminClient()
-  const { error: profileError } = await admin.from('profiles').upsert(
-    {
-      id: userData.user.id,
-      github_username: readMetadataString(metadata, ['user_name', 'preferred_username', 'nickname']),
-      display_name: readMetadataString(metadata, ['full_name', 'name', 'user_name']),
-      avatar_url: readMetadataString(metadata, ['avatar_url', 'picture']),
-    },
-    { onConflict: 'id' }
-  )
-
-  if (profileError) {
-    return NextResponse.redirect(`${origin}/login?error=profile`)
+  const profileResult = await syncAuthCallbackProfile(userData.user)
+  if (!profileResult.ok) {
+    return redirectToLoginError(origin, profileResult.error)
   }
 
   return response
