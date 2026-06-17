@@ -3,8 +3,6 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { isSupabaseAdminConfigured } from '@/lib/supabase/config'
 import type { Database } from '@/types/supabase'
 
-const BOOTSTRAP_ADMIN_EMAIL = 'o@everfu.org'
-
 function readMetadataString(metadata: Record<string, unknown>, keys: string[]) {
   for (const key of keys) {
     const value = metadata[key]
@@ -41,15 +39,12 @@ export async function ensureAuthUserProfile(user: User) {
 
   const profilePayload: Database['public']['Tables']['profiles']['Insert'] = {
     id: user.id,
+    role: 'admin',
   }
 
   assignIfPresent(profilePayload, 'github_username', readMetadataString(metadata, ['user_name', 'preferred_username', 'nickname']))
   assignIfPresent(profilePayload, 'display_name', readMetadataString(metadata, ['full_name', 'name', 'user_name']))
   assignIfPresent(profilePayload, 'avatar_url', readMetadataString(metadata, ['avatar_url', 'picture']))
-
-  if (user.email?.toLowerCase() === BOOTSTRAP_ADMIN_EMAIL) {
-    profilePayload.role = 'admin'
-  }
 
   const { error: profileError } = await admin.from('profiles').upsert(profilePayload, { onConflict: 'id' })
 

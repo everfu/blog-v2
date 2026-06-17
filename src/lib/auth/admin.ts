@@ -20,8 +20,6 @@ export interface CurrentAdmin {
 }
 
 export function toCurrentAdmin(user: User, profile: ProfileRow): CurrentAdmin | null {
-  if (profile.role !== 'admin') return null
-
   return {
     id: user.id,
     email: user.email ?? null,

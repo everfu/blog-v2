@@ -2,7 +2,6 @@ import { isSupabaseConfigured } from '@/lib/supabase/config'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminComments } from '@/server/comments/adapters/page'
 import { getAdminPosts } from '@/server/posts/adapters/admin'
-import { getAdminUsers } from '@/server/users/adapters/page'
 import type { AdminAuditLog, AdminDashboardSummary } from '../contracts/types'
 
 export async function getRecentAdminAuditLogs(limit = 8): Promise<AdminAuditLog[]> {
@@ -29,10 +28,9 @@ export async function getRecentAdminAuditLogs(limit = 8): Promise<AdminAuditLog[
 }
 
 export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary> {
-  const [posts, comments, users, auditLogs] = await Promise.all([
+  const [posts, comments, auditLogs] = await Promise.all([
     getAdminPosts(),
     getAdminComments({ status: 'all' }),
-    getAdminUsers(),
     getRecentAdminAuditLogs(8),
   ])
 
@@ -45,8 +43,6 @@ export async function getAdminDashboardSummary(): Promise<AdminDashboardSummary>
     pendingComments: comments.filter(comment => comment.status === 'pending').length,
     approvedComments: comments.filter(comment => comment.status === 'approved').length,
     spamComments: comments.filter(comment => comment.status === 'spam').length,
-    userTotal: users.length,
-    adminTotal: users.filter(user => user.role === 'admin').length,
     recentPosts: posts.slice(0, 6),
     pendingCommentItems: comments.filter(comment => comment.status === 'pending').slice(0, 5),
     auditLogs,

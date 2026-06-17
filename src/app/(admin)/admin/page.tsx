@@ -29,7 +29,6 @@ export default async function AdminPage() {
     { label: '文章', value: summary.postTotal, icon: 'i-lucide-files', hint: `${summary.publishedPosts} 篇已发布`, tone: 'muted' as const },
     { label: '草稿', value: summary.draftPosts, icon: 'i-lucide-file-pen-line', hint: '待继续编辑', tone: 'warning' as const },
     { label: '待审评论', value: summary.pendingComments, icon: 'i-lucide-circle-alert', hint: '需要处理', tone: summary.pendingComments > 0 ? 'danger' as const : 'success' as const },
-    { label: '成员', value: summary.userTotal, icon: 'i-lucide-users-round', hint: `${summary.adminTotal} 位管理员`, tone: 'muted' as const },
   ]
 
   return (
@@ -142,7 +141,7 @@ export default async function AdminPage() {
             ))}
             {summary.auditLogs.length === 0 && (
               <div className="p-4 md:p-5">
-                <AdminEmptyState icon="i-lucide-activity" title="暂无操作记录" body="文章保存、评论审核、角色调整后会在这里出现。" />
+                <AdminEmptyState icon="i-lucide-activity" title="暂无操作记录" body="文章保存、评论审核等操作会在这里出现。" />
               </div>
             )}
           </div>

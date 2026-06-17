@@ -29,7 +29,6 @@ import {
   updateFriendApplicationStatus,
 } from '@/server/content/adapters/actions'
 import { saveAdminPost } from '@/server/posts/adapters/actions'
-import { updateAdminUserRole } from '@/server/users/adapters/actions'
 import { deleteAdminMedia, uploadAdminMedia } from '@/server/media/adapters/actions'
 
 async function requireAdmin() {
@@ -74,11 +73,6 @@ export async function saveCommentSmtpSettings(formData: FormData) {
 export async function sendCommentSmtpTestAction(formData: FormData) {
   const admin = await requireAdmin()
   return sendCommentSmtpTest(admin, formData)
-}
-
-export async function updateUserRole(formData: FormData) {
-  const admin = await requireAdmin()
-  return updateAdminUserRole(admin, formData)
 }
 
 export async function saveWatched(formData: FormData) {

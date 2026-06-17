@@ -1,7 +1,6 @@
 import type { Json } from '@/types/supabase'
 import type { AdminComment } from '@/server/comments/contracts/types'
 import type { AdminPost } from '@/server/posts/contracts/types'
-import type { AdminUser } from '@/server/users/contracts/types'
 
 export interface AdminAuditLog {
   id: string
@@ -22,8 +21,6 @@ export interface AdminDashboardSummary {
   pendingComments: number
   approvedComments: number
   spamComments: number
-  userTotal: number
-  adminTotal: number
   recentPosts: AdminPost[]
   pendingCommentItems: AdminComment[]
   auditLogs: AdminAuditLog[]
@@ -32,6 +29,5 @@ export interface AdminDashboardSummary {
 export interface AdminDashboardSource {
   posts: AdminPost[]
   comments: AdminComment[]
-  users: AdminUser[]
   auditLogs: AdminAuditLog[]
 }

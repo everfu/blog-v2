@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { ComponentProps, InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react'
-import type { CommentStatus, ContentStatus, PostStatus, ProfileRole } from '@/types/supabase'
+import type { CommentStatus, ContentStatus, PostStatus } from '@/types/supabase'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button, buttonVariants } from '@/components/ui/button'
@@ -507,14 +507,6 @@ export function getCommentStatusLabel(status: CommentStatus) {
   return labels[status]
 }
 
-export function getRoleLabel(role: ProfileRole) {
-  return role === 'admin' ? '管理员' : '普通用户'
-}
-
-export function getRoleTone(role: ProfileRole): Tone {
-  return role === 'admin' ? 'success' : 'muted'
-}
-
 export function AdminFilterLink({
   active,
   children,
@@ -578,7 +570,6 @@ export function formatAdminAction(action: string) {
   const labels: Record<string, string> = {
     create: '新建',
     update: '更新',
-    update_role: '调整角色',
     moderate: '审核',
     approved: '通过',
     pending: '设为待审',

@@ -3,7 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 import { getAdminRedirectPath } from '@/lib/auth/redirect'
 import { isSupabaseConfigured, requireSupabaseConfig } from '@/lib/supabase/config'
 import type { Database } from '@/types/supabase'
-import { syncAuthCallbackProfile } from '@/server/users/application/auth-callback'
+import { syncAuthCallbackProfile } from '@/server/auth/application/profile'
 
 function redirectToLoginError(origin: string, error: string, details?: URLSearchParams) {
   const url = new URL('/login', origin)

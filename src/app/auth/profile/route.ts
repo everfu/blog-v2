@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { isSupabaseConfigured } from '@/lib/supabase/config'
-import { ensureAuthUserProfile } from '@/server/users/application/auth-callback'
+import { ensureAuthUserProfile } from '@/server/auth/application/profile'
 
 export async function POST() {
   if (!isSupabaseConfigured) {
