@@ -47,7 +47,7 @@ export async function ensureAuthUserProfile(user: User) {
   assignIfPresent(profilePayload, 'display_name', readMetadataString(metadata, ['full_name', 'name', 'user_name']))
   assignIfPresent(profilePayload, 'avatar_url', readMetadataString(metadata, ['avatar_url', 'picture']))
 
-  if (!existingProfile && user.email?.toLowerCase() === BOOTSTRAP_ADMIN_EMAIL) {
+  if (user.email?.toLowerCase() === BOOTSTRAP_ADMIN_EMAIL) {
     profilePayload.role = 'admin'
   }
 
