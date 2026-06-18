@@ -1,60 +1,78 @@
 import type { User } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { isSupabaseAdminConfigured } from '@/lib/supabase/config'
+import {
+  adminEmail,
+  isAdminEmail,
+  isSupabaseAdminConfigured,
+} from '@/lib/supabase/config'
 import type { Database } from '@/types/supabase'
 
-function readMetadataString(metadata: Record<string, unknown>, keys: string[]) {
-  for (const key of keys) {
-    const value = metadata[key]
-    if (typeof value === 'string' && value.trim()) return value.trim()
+export type AdminPasskeyState = {
+  userId: string | null
+  passkeyCount: number
+}
+
+/**
+ * Look up the single admin account (by ADMIN_EMAIL) and how many passkeys it
+ * has. Reads auth schema via a SECURITY DEFINER function, so it needs the
+ * service role. Returns { userId: null } when the user does not exist yet.
+ */
+export async function getAdminPasskeyState(): Promise<
+  | { ok: true, state: AdminPasskeyState }
+  | { ok: false, error: 'profile-config' | 'admin-email' | 'state' }
+> {
+  if (!isSupabaseAdminConfigured) {
+    return { ok: false, error: 'profile-config' }
   }
 
-  return null
+  if (!adminEmail) {
+    return { ok: false, error: 'admin-email' }
+  }
+
+  const admin = createAdminClient()
+  const { data, error } = await admin.rpc('admin_passkey_state', { p_email: adminEmail })
+
+  if (error) {
+    return { ok: false, error: 'state' }
+  }
+
+  const row = Array.isArray(data) ? data[0] : null
+
+  return {
+    ok: true,
+    state: {
+      userId: row?.user_id ?? null,
+      passkeyCount: Number(row?.passkey_count ?? 0),
+    },
+  }
 }
 
-function assignIfPresent<T extends Record<string, unknown>, K extends keyof T>(
-  target: T,
-  key: K,
-  value: T[K] | null
-) {
-  if (value !== null) target[key] = value
-}
-
+/**
+ * Ensure the authenticated user is the configured admin and owns an
+ * admin profile row. Only the ADMIN_EMAIL account is ever promoted.
+ */
 export async function ensureAuthUserProfile(user: User) {
   if (!isSupabaseAdminConfigured) {
     return { ok: false, error: 'profile-config' as const }
   }
 
-  const metadata = user.user_metadata ?? {}
-  const admin = createAdminClient()
-  const { data: existingProfile, error: existingProfileError } = await admin
-    .from('profiles')
-    .select('id')
-    .eq('id', user.id)
-    .maybeSingle()
-
-  if (existingProfileError) {
-    return { ok: false, error: 'profile' as const }
+  if (!isAdminEmail(user.email)) {
+    return { ok: false, error: 'forbidden' as const }
   }
 
+  const admin = createAdminClient()
   const profilePayload: Database['public']['Tables']['profiles']['Insert'] = {
     id: user.id,
     role: 'admin',
   }
 
-  assignIfPresent(profilePayload, 'github_username', readMetadataString(metadata, ['user_name', 'preferred_username', 'nickname']))
-  assignIfPresent(profilePayload, 'display_name', readMetadataString(metadata, ['full_name', 'name', 'user_name']))
-  assignIfPresent(profilePayload, 'avatar_url', readMetadataString(metadata, ['avatar_url', 'picture']))
-
-  const { error: profileError } = await admin.from('profiles').upsert(profilePayload, { onConflict: 'id' })
+  const { error: profileError } = await admin
+    .from('profiles')
+    .upsert(profilePayload, { onConflict: 'id' })
 
   if (profileError) {
     return { ok: false, error: 'profile' as const }
   }
 
   return { ok: true as const }
-}
-
-export async function syncAuthCallbackProfile(user: User) {
-  return ensureAuthUserProfile(user)
 }

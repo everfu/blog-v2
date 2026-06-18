@@ -18,7 +18,8 @@ export async function POST() {
   const result = await ensureAuthUserProfile(data.user)
 
   if (!result.ok) {
-    return NextResponse.json({ error: result.error }, { status: 500 })
+    const status = result.error === 'forbidden' ? 403 : 500
+    return NextResponse.json({ error: result.error }, { status })
   }
 
   return NextResponse.json({ ok: true })

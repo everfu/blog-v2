@@ -1,6 +1,10 @@
 import type { User } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { isSupabaseAdminConfigured, isSupabaseConfigured } from '@/lib/supabase/config'
+import {
+  isAdminEmail,
+  isSupabaseAdminConfigured,
+  isSupabaseConfigured,
+} from '@/lib/supabase/config'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
 
@@ -37,11 +41,16 @@ export async function getAdminFromUser(
   if (!user) return null
   if (!isSupabaseAdminConfigured) return null
 
+  // The single admin account is locked to ADMIN_EMAIL. A valid Supabase
+  // session for any other identity must never be treated as admin.
+  if (!isAdminEmail(user.email)) return null
+
   const admin = createAdminClient()
   const { data: profile, error } = await admin
     .from('profiles')
     .select('id, github_username, display_name, avatar_url, role')
     .eq('id', user.id)
+    .eq('role', 'admin')
     .maybeSingle()
 
   if (error || !profile) return null
