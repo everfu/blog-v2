@@ -875,6 +875,15 @@ export interface Database {
     }
     Views: Record<string, never>
     Functions: {
+      admin_passkey_state: {
+        Args: {
+          p_email: string
+        }
+        Returns: Array<{
+          user_id: string
+          passkey_count: number
+        }>
+      }
       increment_post_view: {
         Args: {
           p_post_id: string

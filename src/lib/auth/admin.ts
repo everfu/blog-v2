@@ -1,6 +1,9 @@
 import type { User } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { isSupabaseAdminConfigured, isSupabaseConfigured } from '@/lib/supabase/config'
+import {
+  isSupabaseAdminConfigured,
+  isSupabaseConfigured,
+} from '@/lib/supabase/config'
 import { createClient } from '@/lib/supabase/server'
 import type { Database } from '@/types/supabase'
 
@@ -37,11 +40,16 @@ export async function getAdminFromUser(
   if (!user) return null
   if (!isSupabaseAdminConfigured) return null
 
+  // The database is the source of truth: an account is admin iff it owns a
+  // profile row with role='admin'. ADMIN_EMAIL only gates who can be promoted
+  // (see ensureAuthUserProfile), so a missing/changed env var can never lock
+  // an already-provisioned admin out.
   const admin = createAdminClient()
   const { data: profile, error } = await admin
     .from('profiles')
     .select('id, github_username, display_name, avatar_url, role')
     .eq('id', user.id)
+    .eq('role', 'admin')
     .maybeSingle()
 
   if (error || !profile) return null

@@ -7,6 +7,28 @@ export const isSupabaseAdminConfigured = Boolean(
   supabaseUrl && supabaseServiceRoleKey
 )
 
+export function normalizeAdminEmail(value: string | null | undefined) {
+  if (typeof value !== 'string') return null
+  const email = value.trim().toLowerCase()
+  return email || null
+}
+
+export const adminEmail = normalizeAdminEmail(process.env.ADMIN_EMAIL)
+export const isAdminEmailConfigured = Boolean(adminEmail)
+
+export function isAdminEmail(value: string | null | undefined) {
+  if (!adminEmail) return false
+  return normalizeAdminEmail(value) === adminEmail
+}
+
+export function requireAdminEmail() {
+  if (!adminEmail) {
+    throw new Error('Missing ADMIN_EMAIL')
+  }
+
+  return adminEmail
+}
+
 export function getSiteUrl() {
   if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`

@@ -136,11 +136,11 @@ function AdminUtilities() {
           <ExternalLinkIcon className="h-4 w-4" />
         </Link>
       </Button>
-      <Button variant="ghost" size="icon" asChild className={utilityButtonClass}>
-        <Link href="/logout" aria-label="退出登录">
+      <form action="/logout" method="post" className="contents">
+        <Button type="submit" variant="ghost" size="icon" aria-label="退出登录" className={utilityButtonClass}>
           <LogOutIcon className="h-4 w-4" />
-        </Link>
-      </Button>
+        </Button>
+      </form>
       <AdminThemeToggle className={cn(
         utilityButtonClass,
         'data-[state=open]:border-[var(--admin-border-strong)] data-[state=open]:bg-background data-[state=open]:text-foreground'

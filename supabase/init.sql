@@ -22,6 +22,25 @@ revoke all on function private.is_admin() from public;
 grant usage on schema private to authenticated;
 grant execute on function private.is_admin() to authenticated;
 
+create or replace function private.admin_passkey_state(p_email text)
+returns table(user_id uuid, passkey_count bigint)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    u.id as user_id,
+    (select count(*) from auth.webauthn_credentials c where c.user_id = u.id) as passkey_count
+  from auth.users u
+  where u.email = lower(trim(p_email))
+    and u.deleted_at is null
+  limit 1;
+$$;
+
+revoke all on function private.admin_passkey_state(text) from public, anon, authenticated;
+grant execute on function private.admin_passkey_state(text) to service_role;
+
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
