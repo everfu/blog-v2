@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import type { Database } from '@/types/supabase'
 import { isSupabaseConfigured, supabaseAnonKey, supabaseUrl } from './config'
+import { getAdminFromUser } from '@/lib/auth/admin'
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request })
@@ -13,7 +15,7 @@ export async function updateSession(request: NextRequest) {
     return response
   }
 
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+  const supabase = createServerClient<Database>(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
         return request.cookies.getAll()
@@ -30,7 +32,10 @@ export async function updateSession(request: NextRequest) {
 
   const { data } = await supabase.auth.getUser()
 
-  if (request.nextUrl.pathname.startsWith('/admin') && !data.user) {
+  if (
+    request.nextUrl.pathname.startsWith('/admin') &&
+    !(await getAdminFromUser(data.user))
+  ) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.searchParams.set('next', request.nextUrl.pathname)
