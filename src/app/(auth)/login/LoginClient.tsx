@@ -16,7 +16,7 @@ function getPasskeyErrorMessage(error: unknown) {
   }
 
   if (record.code === 'webauthn_credential_not_found') {
-    return '没有找到可用于本站的通行密钥，请先使用迁移入口登录并注册通行密钥。'
+    return '没有找到可用于本站的通行密钥，请确认当前账号已注册本站通行密钥。'
   }
 
   if (record.code === 'email_not_confirmed' || record.code === 'phone_not_confirmed') {
@@ -54,7 +54,11 @@ async function syncProfile() {
     throw new Error('缺少 Supabase service role key，无法同步管理员 profile。')
   }
 
-  throw new Error('登录成功，但同步管理员资料失败。')
+  if (response.status === 401) {
+    throw new Error('登录状态未写入，请重试。')
+  }
+
+  throw new Error('登录成功，但确认登录状态失败。')
 }
 
 export default function LoginClient({
@@ -95,6 +99,7 @@ export default function LoginClient({
       router.replace(nextPath)
       router.refresh()
     } catch (error) {
+      await createClient().auth.signOut()
       setClientError(getPasskeyErrorMessage(error))
     } finally {
       setPending(false)

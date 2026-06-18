@@ -27,7 +27,7 @@ export async function ensureAuthUserProfile(user: User) {
 
   const metadata = user.user_metadata ?? {}
   const admin = createAdminClient()
-  const { data: existingProfile, error: existingProfileError } = await admin
+  const { error: existingProfileError } = await admin
     .from('profiles')
     .select('id')
     .eq('id', user.id)
@@ -39,7 +39,6 @@ export async function ensureAuthUserProfile(user: User) {
 
   const profilePayload: Database['public']['Tables']['profiles']['Insert'] = {
     id: user.id,
-    role: 'admin',
   }
 
   assignIfPresent(profilePayload, 'github_username', readMetadataString(metadata, ['user_name', 'preferred_username', 'nickname']))
@@ -53,8 +52,4 @@ export async function ensureAuthUserProfile(user: User) {
   }
 
   return { ok: true as const }
-}
-
-export async function syncAuthCallbackProfile(user: User) {
-  return ensureAuthUserProfile(user)
 }
