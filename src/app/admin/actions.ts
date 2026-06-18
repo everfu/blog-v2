@@ -12,6 +12,7 @@ import {
   updateCommentSmtpSettings,
 } from '@/server/comments/adapters/actions'
 import {
+  approveFriendApplication,
   deleteAlbumPhoto,
   deleteFriendLink,
   deleteStackItem,
@@ -143,6 +144,11 @@ export async function saveFriendApplicationSettingsAction(formData: FormData) {
 export async function updateFriendApplicationStatusAction(formData: FormData) {
   const admin = await requireAdmin()
   return updateFriendApplicationStatus(admin, formData)
+}
+
+export async function approveFriendApplicationAction(formData: FormData) {
+  const admin = await requireAdmin()
+  return approveFriendApplication(admin, formData)
 }
 
 export async function saveHomeSectionAction(formData: FormData) {

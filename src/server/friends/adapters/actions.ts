@@ -1,6 +1,7 @@
 'use server'
 
 import {
+  approveFriendApplication as approveFriendApplicationCommand,
   deleteFriendLink as deleteFriendLinkCommand,
   refreshFriendFeedSnapshots as refreshFriendFeedSnapshotsCommand,
   saveFriendApplicationSettings as saveFriendApplicationSettingsCommand,
@@ -28,6 +29,10 @@ export async function saveFriendApplicationSettings(admin: CurrentAdmin, formDat
 
 export async function updateFriendApplicationStatus(admin: CurrentAdmin, formData: FormData) {
   return updateFriendApplicationStatusCommand(admin, formData)
+}
+
+export async function approveFriendApplication(admin: CurrentAdmin, formData: FormData) {
+  return approveFriendApplicationCommand(admin, formData)
 }
 
 export async function refreshFriendFeedSnapshots(admin: CurrentAdmin) {

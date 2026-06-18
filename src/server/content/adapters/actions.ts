@@ -16,6 +16,7 @@ import {
   saveStackCategory as saveStackCategoryCommand,
   saveStackItem as saveStackItemCommand,
   saveWatchedItem as saveWatchedItemCommand,
+  approveFriendApplication as approveFriendApplicationCommand,
   updateFriendApplicationStatus as updateFriendApplicationStatusCommand,
 } from '@/server/content/application/actions'
 
@@ -69,6 +70,10 @@ export async function saveFriendApplicationSettings(admin: CurrentAdmin, formDat
 
 export async function updateFriendApplicationStatus(admin: CurrentAdmin, formData: FormData) {
   return updateFriendApplicationStatusCommand(admin, formData)
+}
+
+export async function approveFriendApplication(admin: CurrentAdmin, formData: FormData) {
+  return approveFriendApplicationCommand(admin, formData)
 }
 
 export async function refreshFriendFeedSnapshots(admin: CurrentAdmin) {

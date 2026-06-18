@@ -1,4 +1,5 @@
 export {
+  approveFriendApplication,
   deleteAlbumPhoto,
   deleteFriendLink,
   deleteStackItem,
@@ -15,4 +16,3 @@ export {
   saveWatchedItem,
   updateFriendApplicationStatus,
 } from '@/server/content/adapters/actions'
-

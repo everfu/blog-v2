@@ -113,7 +113,12 @@ const friendApplicationSettingsSchema = z.object({
 
 const friendApplicationStatusSchema = z.object({
   id: z.string().uuid(),
-  status: z.enum(['handled', 'rejected']),
+  status: z.enum(['rejected']),
+})
+
+const friendApplicationApprovalSchema = z.object({
+  id: z.string().uuid(),
+  groupId: z.string().uuid(),
 })
 
 const homeSectionSchema = z.object({
@@ -451,9 +456,78 @@ export async function updateFriendApplicationStatus(admin: CurrentAdmin, formDat
     .eq('id', parsed.data.id)
 
   if (error) redirect('/admin/friends?error=application-status')
-  await audit(supabase, admin, status === 'handled' ? 'handle_friend_application' : 'reject_friend_application', 'friend_link_application', parsed.data.id)
+  await audit(supabase, admin, 'reject_friend_application', 'friend_link_application', parsed.data.id)
   revalidateContent(['friend-applications'], ['/admin/friends'])
   redirect('/admin/friends?saved=application-status')
+}
+
+export async function approveFriendApplication(admin: CurrentAdmin, formData: FormData) {
+  const parsed = friendApplicationApprovalSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) redirect('/admin/friends?error=invalid-application')
+
+  const supabase = await createClient()
+  const [{ data: application, error: applicationError }, { data: group, error: groupError }] = await Promise.all([
+    supabase
+      .from('friend_link_applications')
+      .select('id, author_name, site_name, description, site_url, avatar_url, feed_url, status')
+      .eq('id', parsed.data.id)
+      .maybeSingle(),
+    supabase
+      .from('friend_groups')
+      .select('id')
+      .eq('id', parsed.data.groupId)
+      .maybeSingle(),
+  ])
+
+  if (applicationError || !application) redirect('/admin/friends?error=application-not-found')
+  if (application.status !== 'pending') redirect('/admin/friends?error=application-already-handled')
+  if (groupError || !group) redirect('/admin/friends?error=invalid-application-group')
+
+  const { data: handledApplication, error: statusError } = await supabase
+    .from('friend_link_applications')
+    .update({ status: 'handled' as FriendApplicationStatus })
+    .eq('id', parsed.data.id)
+    .eq('status', 'pending')
+    .select('id')
+    .maybeSingle()
+
+  if (statusError) redirect('/admin/friends?error=application-status')
+  if (!handledApplication) redirect('/admin/friends?error=application-already-handled')
+
+  const today = new Date().toISOString().slice(0, 10)
+  const { data: link, error: linkError } = await supabase
+    .from('friend_links')
+    .insert({
+      group_id: parsed.data.groupId,
+      author: application.author_name,
+      sitenick: textOrNull(application.site_name),
+      description: application.description,
+      link_url: application.site_url,
+      feed_url: textOrNull(application.feed_url || undefined),
+      feed_muted: false,
+      icon_url: getFriendFavicon(application.site_url),
+      avatar_url: textOrNull(application.avatar_url || undefined),
+      archs: [],
+      joined_at: today,
+      status: 'published' as ContentStatus,
+      sort_order: 0,
+    })
+    .select('id')
+    .single()
+
+  if (linkError || !link) {
+    await supabase
+      .from('friend_link_applications')
+      .update({ status: 'pending' as FriendApplicationStatus })
+      .eq('id', parsed.data.id)
+      .eq('status', 'handled')
+    redirect('/admin/friends?error=approve-application')
+  }
+
+  await audit(supabase, admin, 'handle_friend_application', 'friend_link_application', parsed.data.id, { friendLinkId: link.id })
+  await audit(supabase, admin, 'create', 'friend_link', link.id, { author: application.author_name, applicationId: parsed.data.id })
+  revalidateContent(['links', 'friends', 'friend-applications'], ['/links', '/friends', '/api/friends', '/admin/friends'])
+  redirect('/admin/friends?saved=application-approved')
 }
 
 export async function refreshFriendFeedSnapshots(admin: CurrentAdmin) {

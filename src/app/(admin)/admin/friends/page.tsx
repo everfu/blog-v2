@@ -1,4 +1,4 @@
-import { deleteFriendLinkAction, refreshFriendFeeds, saveFriendApplicationSettingsAction, saveFriendGroupAction, saveFriendLinkAction, updateFriendApplicationStatusAction } from '@/app/admin/actions'
+import { approveFriendApplicationAction, deleteFriendLinkAction, refreshFriendFeeds, saveFriendApplicationSettingsAction, saveFriendGroupAction, saveFriendLinkAction, updateFriendApplicationStatusAction } from '@/app/admin/actions'
 import { getAdminFriendApplications, getAdminFriends, getFriendApplicationSettings } from '@/server/content/adapters/page'
 import { requireAdminPage } from '@/lib/auth/require-admin'
 import { formatDate, formatTimeAgo } from '@/lib/utils'
@@ -112,7 +112,7 @@ function LinkForm({
 
 function ApplicationSettingsForm({ enabled }: { enabled: boolean }) {
   return (
-    <AdminPanel>
+    <div className="border-t border-[var(--admin-border)] bg-[var(--admin-surface-muted)]">
       <AdminPanelHeader
         title="友链申请设置"
         description="开启后，Links 页面底部会显示申请表；关闭后 API 也会拒绝新的提交。"
@@ -126,7 +126,7 @@ function ApplicationSettingsForm({ enabled }: { enabled: boolean }) {
           <AdminSubmitButton icon="i-lucide-save">保存设置</AdminSubmitButton>
         </AdminFormActions>
       </form>
-    </AdminPanel>
+    </div>
   )
 }
 
@@ -147,7 +147,7 @@ function ApplicationStatusAction({
   icon,
 }: {
   id: string
-  status: 'handled' | 'rejected'
+  status: 'rejected'
   children: string
   icon: string
 }) {
@@ -163,14 +163,55 @@ function ApplicationStatusAction({
   )
 }
 
-function ApplicationInbox({ applications }: { applications: Awaited<ReturnType<typeof getAdminFriendApplications>> }) {
+function ApplicationApprovalAction({
+  applicationId,
+  groups,
+}: {
+  applicationId: string
+  groups: Awaited<ReturnType<typeof getAdminFriends>>['groups']
+}) {
+  const hasGroups = groups.length > 0
+
+  return (
+    <form action={approveFriendApplicationAction} className="grid gap-2 rounded-md border border-[var(--admin-border)] bg-background p-3 sm:grid-cols-[minmax(180px,1fr)_auto] sm:items-end">
+      <input type="hidden" name="id" value={applicationId} />
+      <AdminField label="归属分组">
+        <AdminSelect name="groupId" defaultValue={groups[0]?.id || ''} disabled={!hasGroups} required>
+          {groups.map(group => <option key={group.id} value={group.id}>{group.name}</option>)}
+        </AdminSelect>
+      </AdminField>
+      <button
+        disabled={!hasGroups}
+        className="inline-flex h-9 items-center justify-center gap-1.5 rounded-md border border-foreground bg-foreground px-3 text-xs font-medium text-background hover:opacity-85 disabled:cursor-not-allowed disabled:border-[var(--admin-border)] disabled:bg-[var(--admin-surface-muted)] disabled:text-muted disabled:opacity-80"
+      >
+        <span className="i-lucide-check text-sm" />
+        通过并创建
+      </button>
+      {!hasGroups && (
+        <p className="text-xs leading-relaxed text-amber-600 dark:text-amber-400 sm:col-span-2">
+          需要先新增友链分组，才能通过申请。
+        </p>
+      )}
+    </form>
+  )
+}
+
+function ApplicationInbox({
+  applications,
+  applicationSettings,
+  groups,
+}: {
+  applications: Awaited<ReturnType<typeof getAdminFriendApplications>>
+  applicationSettings: Awaited<ReturnType<typeof getFriendApplicationSettings>>
+  groups: Awaited<ReturnType<typeof getAdminFriends>>['groups']
+}) {
   const pendingCount = applications.filter(application => application.status === 'pending').length
 
   return (
     <AdminPanel>
       <AdminPanelHeader
         title="友链申请"
-        description={`共有 ${applications.length} 条申请，其中 ${pendingCount} 条待处理。`}
+        description={`共有 ${applications.length} 条申请，其中 ${pendingCount} 条待处理。通过后会立即创建公开友链。`}
         icon="i-lucide-inbox"
       />
       {applications.length === 0 ? (
@@ -200,16 +241,13 @@ function ApplicationInbox({ applications }: { applications: Awaited<ReturnType<t
                   </div>
                 </div>
 
-                {application.status === 'pending' && (
-                  <div className="flex shrink-0 flex-wrap gap-2">
-                    <ApplicationStatusAction id={application.id} status="handled" icon="i-lucide-check">
-                      标记处理
-                    </ApplicationStatusAction>
+                <div className="flex shrink-0 flex-wrap gap-2">
+                  {application.status === 'pending' && (
                     <ApplicationStatusAction id={application.id} status="rejected" icon="i-lucide-x">
                       拒绝
                     </ApplicationStatusAction>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
               <div className="grid gap-3 text-sm md:grid-cols-2">
@@ -244,10 +282,15 @@ function ApplicationInbox({ applications }: { applications: Awaited<ReturnType<t
                   </div>
                 )}
               </div>
+
+              {application.status === 'pending' && (
+                <ApplicationApprovalAction applicationId={application.id} groups={groups} />
+              )}
             </article>
           ))}
         </div>
       )}
+      <ApplicationSettingsForm enabled={applicationSettings.enabled} />
     </AdminPanel>
   )
 }
@@ -276,14 +319,15 @@ export default async function AdminFriendsPage() {
           </form>
         )}
       />
-      <ApplicationSettingsForm enabled={applicationSettings.enabled} />
-      <ApplicationInbox applications={applications} />
-      <AdminCreatePanel title="新增分组" description="分组会用于 Links 页面分区。" icon="i-lucide-folder-plus">
-        <GroupForm />
-      </AdminCreatePanel>
-      <AdminCreatePanel title="新增友链" description="填写 Feed URL 后可进入朋友圈快照刷新。" icon="i-lucide-user-plus">
-        <LinkForm groups={groups} />
-      </AdminCreatePanel>
+      <ApplicationInbox applications={applications} applicationSettings={applicationSettings} groups={groups} />
+      <div className="grid gap-3 lg:grid-cols-2">
+        <AdminCreatePanel title="新增友链" description="填写 Feed URL 后可进入朋友圈快照刷新。" icon="i-lucide-user-plus">
+          <LinkForm groups={groups} />
+        </AdminCreatePanel>
+        <AdminCreatePanel title="新增分组" description="分组会用于 Links 页面分区和申请归类。" icon="i-lucide-folder-plus">
+          <GroupForm />
+        </AdminCreatePanel>
+      </div>
       <div className="space-y-3">
         {groups.map(group => (
           <AdminPanel key={group.id}>
