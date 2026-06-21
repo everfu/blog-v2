@@ -20,7 +20,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function Header() {
   return (
-    <header className="max-w-site mx-auto relative z-10">
+    <header className="max-w-site mx-auto relative z-40">
       <nav className="px-2 md:px-4 py-2">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center hover:opacity-60 transition-opacity">

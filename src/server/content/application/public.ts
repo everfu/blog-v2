@@ -109,7 +109,7 @@ async function fetchStack() {
   const [{ data: categories }, { data: items }] = await Promise.all([
     supabase
       .from('stack_categories')
-      .select('id, slug, name, kind, status, sort_order')
+      .select('id, slug, name, description, kind, status, sort_order')
       .eq('status', 'published')
       .order('sort_order', { ascending: true }),
     supabase
@@ -125,14 +125,18 @@ async function fetchStack() {
       name: item.name,
       image: item.image_url || '',
       category: item.item_category,
+      description: item.description || undefined,
       url: item.url || undefined,
+      recommended: item.recommended,
       wishlist: item.wishlist,
     }))
 
   const softwareCategories: SoftwareCategory[] = (categories || [])
     .filter(category => category.kind === 'software')
     .map(category => ({
+      slug: category.slug,
       name: category.name,
+      description: category.description || undefined,
       items: (items || [])
         .filter(item => item.kind === 'software' && item.category_id === category.id)
         .map<SoftwareCategory['items'][number]>(item => ({
@@ -144,7 +148,6 @@ async function fetchStack() {
           recommended: item.recommended,
         })),
     }))
-    .filter(category => category.items.length > 0)
 
   return { hardwareItems, softwareCategories }
 }

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "migrate:stack-icons": "node --env-file=.env.local scripts/migrate-stack-skill-icons.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

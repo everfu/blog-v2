@@ -489,6 +489,18 @@ a:hover {
   opacity: .30;
 }
 
+.skill-icon-dark {
+  display: none;
+}
+
+[data-theme='dark'] .skill-icon-light {
+  display: none;
+}
+
+[data-theme='dark'] .skill-icon-dark {
+  display: inline-flex;
+}
+
 /* Photo pop animation */
 @keyframes photo-pop {
   0% {

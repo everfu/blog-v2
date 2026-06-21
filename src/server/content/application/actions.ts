@@ -73,7 +73,13 @@ const stackItemSchema = z.object({
   name: z.string().trim().min(1).max(120),
   description: z.string().trim().max(500).optional(),
   itemCategory: z.string().trim().max(80).optional(),
-  icon: optionalTextSchema,
+  icon: z.string()
+    .trim()
+    .toLowerCase()
+    .max(80)
+    .regex(/^[a-z0-9-]*$/)
+    .refine(value => !value.startsWith('i-'))
+    .optional(),
   imageUrl: optionalUrlSchema,
   url: optionalUrlSchema,
   recommended: z.enum(['on']).optional(),

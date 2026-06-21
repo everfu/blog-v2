@@ -92,8 +92,8 @@ function ItemForm({
         <AdminField label="排序">
           <AdminInput name="sortOrder" type="number" defaultValue={item?.sortOrder || 0} />
         </AdminField>
-        <AdminField label="图标 class">
-          <AdminInput name="icon" defaultValue={item?.icon} />
+        <AdminField label="Skill Icons 名称" hint="填写 skillicons.dev 图标名，如 ableton；无需填写 URL 或 class。">
+          <AdminInput name="icon" defaultValue={item?.icon} placeholder="ableton" />
         </AdminField>
         <AdminField label="链接">
           <AdminInput name="url" defaultValue={item?.url} />
@@ -129,7 +129,7 @@ export default async function AdminStackPage() {
       <AdminCreatePanel title="新增分类" description="软件按分类分组，硬件可使用默认 Hardware 分类。" icon="i-lucide-folder-plus">
         <CategoryForm />
       </AdminCreatePanel>
-      <AdminCreatePanel title="新增条目" description="支持 Iconify class、图片 URL 或上传图片。" icon="i-lucide-package-plus">
+      <AdminCreatePanel title="新增条目" description="支持 Skill Icons 名称、图片 URL 或上传图片。" icon="i-lucide-package-plus">
         <ItemForm categories={categories} />
       </AdminCreatePanel>
       <div className="space-y-3">

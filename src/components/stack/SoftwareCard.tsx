@@ -1,38 +1,102 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
+import { useState } from 'react'
 import type { SoftwareItem } from '@/types'
+import { cn } from '@/lib/utils'
 
 interface SoftwareCardProps {
   item: SoftwareItem
 }
 
+function IconFallback() {
+  return <span className="i-lucide-package text-xl text-muted opacity-30" aria-hidden="true" />
+}
+
+function SkillIcon({ name }: { name: string }) {
+  const [lightFailed, setLightFailed] = useState(false)
+  const [darkFailed, setDarkFailed] = useState(false)
+  const iconName = encodeURIComponent(name.trim().toLowerCase())
+
+  return (
+    <>
+      <span className="skill-icon-light inline-flex h-6 w-6 items-center justify-center">
+        {lightFailed ? (
+          <IconFallback />
+        ) : (
+          <Image
+            src={`https://skillicons.dev/icons?i=${iconName}&theme=light`}
+            alt=""
+            width={24}
+            height={24}
+            unoptimized
+            onError={() => setLightFailed(true)}
+            className="h-6 w-6"
+          />
+        )}
+      </span>
+      <span className="skill-icon-dark h-6 w-6 items-center justify-center">
+        {darkFailed ? (
+          <IconFallback />
+        ) : (
+          <Image
+            src={`https://skillicons.dev/icons?i=${iconName}&theme=dark`}
+            alt=""
+            width={24}
+            height={24}
+            unoptimized
+            onError={() => setDarkFailed(true)}
+            className="h-6 w-6"
+          />
+        )}
+      </span>
+    </>
+  )
+}
+
 function ItemIcon({ icon, image, name }: Pick<SoftwareItem, 'icon' | 'image' | 'name'>) {
-  if (icon) return <span className={`${icon} text-xl`} />
+  if (icon) return <SkillIcon name={icon} />
   if (image) return <Image src={image} alt={name} fill sizes="40px" className="object-cover rounded" />
-  return <span className="i-lucide-package text-xl opacity-20 text-muted" />
+  return <IconFallback />
 }
 
 export default function SoftwareCard({ item }: SoftwareCardProps) {
+  const isLinked = Boolean(item.url)
+
   const content = (
-    <div className="card flex items-start gap-3 p-3 group">
-      <div className="relative w-10 h-10 rounded flex items-center justify-center flex-shrink-0">
+    <div
+      className={cn(
+        'card flex items-start gap-3 p-3',
+        isLinked && 'group-hover:border-primary group-focus-visible:border-primary',
+      )}
+    >
+      <div className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center">
         <ItemIcon icon={item.icon} image={item.image} name={item.name} />
       </div>
-      
-      <div className="flex-1 min-w-0">
-        <h4 className="text-sm font-medium mb-0.5 group-hover:opacity-70 transition-opacity flex items-center gap-2">
+
+      <div className="min-w-0 flex-1">
+        <h4 className="mb-0.5 flex items-center gap-2 text-sm font-medium transition-opacity group-hover:opacity-70 group-focus-visible:opacity-70">
           {item.name}
           {item.recommended && (
-            <span className="text-xs px-1.5 py-0.5 text-red-500 font-medium">推荐</span>
+            <span className="px-1.5 py-0.5 text-xs font-medium text-red-500">推荐</span>
           )}
         </h4>
-        <p className="text-xs text-muted leading-relaxed">{item.description}</p>
+        {item.description && (
+          <p className="text-xs leading-relaxed text-muted">{item.description}</p>
+        )}
       </div>
     </div>
   )
 
   return item.url ? (
-    <Link href={item.url} target="_blank" rel="noopener noreferrer" className="block">
+    <Link
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`访问 ${item.name} 官网（新窗口打开）`}
+      className="group block outline-none focus-visible:outline-none"
+    >
       {content}
     </Link>
   ) : content

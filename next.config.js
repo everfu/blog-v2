@@ -17,6 +17,7 @@ const nextConfig = {
       { protocol: 'https', hostname: 'blog.xiowo.net' },
       { protocol: 'https', hostname: 'weavatar.com' },
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      { protocol: 'https', hostname: 'skillicons.dev' },
     ],
   },
 }

@@ -22,7 +22,9 @@ export interface HardwareItem {
   name: string
   image: string
   category: string
+  description?: string
   url?: string
+  recommended?: boolean
   wishlist?: boolean
 }
 
@@ -37,7 +39,9 @@ export interface SoftwareItem {
 }
 
 export interface SoftwareCategory {
+  slug: string
   name: string
+  description?: string
   items: SoftwareItem[]
 }
 
