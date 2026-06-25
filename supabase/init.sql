@@ -91,6 +91,20 @@ create table if not exists public.post_likes (
   unique (post_id, visitor_hash)
 );
 
+create table if not exists public.post_reactions (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references public.posts(id) on delete cascade,
+  emoji text not null check (emoji in ('👍','❤️','😂','👏','🤔')),
+  visitor_hash text not null,
+  ip_hash text not null,
+  user_agent_hash text not null,
+  created_at timestamptz not null default now(),
+  unique (post_id, emoji, visitor_hash)
+);
+
+create index if not exists idx_post_reactions_post_id
+  on public.post_reactions(post_id);
+
 create table if not exists public.post_revisions (
   id uuid primary key default gen_random_uuid(),
   post_id uuid not null references public.posts(id) on delete cascade,
@@ -531,6 +545,57 @@ begin
 end;
 $$;
 
+create or replace function public.record_post_reaction(
+  p_post_id uuid,
+  p_emoji text,
+  p_visitor_hash text,
+  p_ip_hash text,
+  p_user_agent_hash text
+)
+returns table(reacted boolean, reactions jsonb)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_reacted boolean := false;
+  v_reactions jsonb;
+begin
+  if coalesce(length(trim(p_visitor_hash)), 0) = 0
+    or coalesce(length(trim(p_ip_hash)), 0) = 0
+    or coalesce(length(trim(p_user_agent_hash)), 0) = 0 then
+    raise exception 'Missing visitor fingerprint';
+  end if;
+
+  if p_emoji is null or p_emoji not in ('👍','❤️','😂','👏','🤔') then
+    raise exception 'Invalid emoji';
+  end if;
+
+  if not exists (select 1 from public.posts where id = p_post_id and status = 'published') then
+    raise exception 'Post not found';
+  end if;
+
+  begin
+    insert into public.post_reactions (post_id, emoji, visitor_hash, ip_hash, user_agent_hash)
+    values (p_post_id, p_emoji, p_visitor_hash, p_ip_hash, p_user_agent_hash);
+    v_reacted := true;
+  exception when unique_violation then
+    v_reacted := false;
+  end;
+
+  select coalesce(jsonb_object_agg(emoji, cnt), '{}'::jsonb)
+    into v_reactions
+  from (
+    select emoji, count(*)::int as cnt
+    from public.post_reactions
+    where post_id = p_post_id
+    group by emoji
+  ) sub;
+
+  return query select v_reacted, v_reactions;
+end;
+$$;
+
 create or replace function public.record_comment_like(
   p_comment_id uuid,
   p_visitor_hash text,
@@ -775,7 +840,9 @@ create policy "admin site media is deletable" on storage.objects for delete to a
 
 revoke all on function public.increment_post_view(uuid) from public;
 revoke all on function public.record_post_like(uuid, text, text, text) from public;
+revoke all on function public.record_post_reaction(uuid, text, text, text, text) from public;
 revoke all on function public.record_comment_like(uuid, text, text, text) from public;
 grant execute on function public.increment_post_view(uuid) to service_role;
 grant execute on function public.record_post_like(uuid, text, text, text) to service_role;
+grant execute on function public.record_post_reaction(uuid, text, text, text, text) to service_role;
 grant execute on function public.record_comment_like(uuid, text, text, text) to anon, authenticated;

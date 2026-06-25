@@ -33,6 +33,7 @@ export function mapPost(row: PostRow): Post {
     recent: row.recent,
     viewCount: row.view_count,
     likeCount: row.like_count,
+    reactions: {},
     content: row.content,
     status: row.status,
     updatedAt: row.updated_at,

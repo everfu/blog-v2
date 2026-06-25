@@ -17,7 +17,10 @@ function IconFallback() {
 function SkillIcon({ name }: { name: string }) {
   const [lightFailed, setLightFailed] = useState(false)
   const [darkFailed, setDarkFailed] = useState(false)
-  const iconName = encodeURIComponent(name.trim().toLowerCase())
+  const skillIconName = name.trim().toLowerCase()
+  const iconName = encodeURIComponent(skillIconName)
+
+  if (!skillIconName || skillIconName.startsWith('i-')) return <IconFallback />
 
   return (
     <>

@@ -92,8 +92,8 @@ function ItemForm({
         <AdminField label="排序">
           <AdminInput name="sortOrder" type="number" defaultValue={item?.sortOrder || 0} />
         </AdminField>
-        <AdminField label="Skill Icons 名称" hint="填写 skillicons.dev 图标名，如 ableton；无需填写 URL 或 class。">
-          <AdminInput name="icon" defaultValue={item?.icon} placeholder="ableton" />
+        <AdminField label="Skill Icons 名称" hint="仅填写 skillicons.dev 支持的图标名，例如 vscode、notion、androidstudio；无需填写 URL 或 class。">
+          <AdminInput name="icon" defaultValue={item?.icon} placeholder="vscode" />
         </AdminField>
         <AdminField label="链接">
           <AdminInput name="url" defaultValue={item?.url} />

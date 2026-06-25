@@ -3,31 +3,50 @@ import Link from 'next/link'
 import { CodeBlock } from './CodeBlock'
 import { Callout } from './Callout'
 import MDXImage from './MDXImage'
+import { makeHeading } from '@/lib/heading'
+
+// 标题工厂：自动注入稳定 id（与服务端 extractHeadings 共享 slugify 实现）
+const H1 = makeHeading(
+  'h1',
+  'text-xl font-bold mb-4 mt-10 text-foreground flex items-center gap-3',
+)
+const H2 = makeHeading(
+  'h2',
+  'text-lg font-bold mb-3 mt-8 text-foreground flex items-center gap-2',
+)
+const H3 = makeHeading(
+  'h3',
+  'text-base font-semibold mb-2 mt-6 text-foreground',
+)
+const H4 = makeHeading(
+  'h4',
+  'text-sm font-semibold mb-2 mt-4 text-muted',
+)
 
 // 导出组件对象供 MDXRemote 使用
 export const mdxComponents: MDXComponents = {
-    // 标题 - 简洁风格，带左侧装饰线
-    h1: ({ children }) => (
-      <h1 className="text-xl font-bold mb-4 mt-10 text-foreground flex items-center gap-3">
+    // 标题 - 简洁风格，带左侧装饰线（自动注入 id，使 TOC 锚点可跳转）
+    h1: ({ children, id: _ignore, className, ...props }) => (
+      <H1 className={className} {...props}>
         <span className="w-1 h-5 bg-foreground rounded-full"></span>
         {children}
-      </h1>
+      </H1>
     ),
-    h2: ({ children }) => (
-      <h2 className="text-lg font-bold mb-3 mt-8 text-foreground flex items-center gap-2">
+    h2: ({ children, id: _ignore, className, ...props }) => (
+      <H2 className={className} {...props}>
         <span className="w-0.5 h-4 bg-muted rounded-full"></span>
         {children}
-      </h2>
+      </H2>
     ),
-    h3: ({ children }) => (
-      <h3 className="text-base font-semibold mb-2 mt-6 text-foreground">
+    h3: ({ children, id: _ignore, className, ...props }) => (
+      <H3 className={className} {...props}>
         {children}
-      </h3>
+      </H3>
     ),
-    h4: ({ children }) => (
-      <h4 className="text-sm font-semibold mb-2 mt-4 text-muted">
+    h4: ({ children, id: _ignore, className, ...props }) => (
+      <H4 className={className} {...props}>
         {children}
-      </h4>
+      </H4>
     ),
     
     // 段落 - 适中的行高和间距

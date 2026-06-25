@@ -7,10 +7,11 @@ import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
 import { getAllPosts, getPostBySlug, getPostHref } from '@/server/posts/adapters/page'
 import { remarkCallout } from '@/lib/remarkCallout'
+import { extractHeadings } from '@/lib/extractHeadings'
 import { formatDate, getReadingTime, getCategoryColorWithBorder } from '@/lib/utils'
 import { SectionDivider } from '@/components/common'
 import { mdxComponents } from '@/components/mdx'
-import { PostMetrics } from '@/components/posts'
+import { PostMetrics, PostReactions, TableOfContents } from '@/components/posts'
 import { Comment } from '@/components/ui'
 import { siteConfig } from '@/config/site'
 import { absoluteUrl, toIsoDate } from '@/config/site-utils'
@@ -87,10 +88,10 @@ export default async function PostPage({ params }: PageProps) {
 
   const dateStr = formatDate(post.date)
   const readingTime = getReadingTime(post.content)
+  const headings = extractHeadings(post.content)
 
   return (
-    <div className="space-y-0">
-      {/* Back to Posts */}
+    <div className="space-y-0 site-shell--article">
       <section>
         <div className="mx-4 md:mx-8 py-4">
           <Link 
@@ -166,27 +167,45 @@ export default async function PostPage({ params }: PageProps) {
         <SectionDivider />
       </section>
 
-      {/* Article Content */}
-      <article>
-        <div className="mx-4 md:mx-8 pb-8 pt-5 mdx-content">
-          <MDXRemote 
-            source={post.content} 
-            components={mdxComponents}
-            options={{
-              mdxOptions: {
-                remarkPlugins: [remarkGfm, remarkDirective, remarkCallout],
-              },
-            }}
+      {/* Article Content - desktop side rails bind to the content grid */}
+      <section className="article-content-shell">
+        <aside
+          aria-label="文章表情反应"
+          className="article-reaction-rail"
+        >
+          <PostReactions
+            postId={post.id}
+            initialReactions={post.reactions ?? {}}
           />
-        </div>
-      </article>
+        </aside>
 
-      <PostMetrics
-        postId={post.id}
-        initialViewCount={post.viewCount}
-        initialLikeCount={post.likeCount}
-        variant="footer"
-      />
+        <article className="article-reading-column">
+          <div className="px-4 pb-8 pt-7 md:px-8 mdx-content">
+            <MDXRemote
+              source={post.content}
+              components={mdxComponents}
+              options={{
+                mdxOptions: {
+                  remarkPlugins: [remarkGfm, remarkDirective, remarkCallout],
+                },
+              }}
+            />
+            {/* 移动端：底部 emoji 表情（水平排列） */}
+            <div className="xl:hidden mt-8 pt-6 border-t border-border">
+              <PostReactions
+                postId={post.id}
+                initialReactions={post.reactions ?? {}}
+              />
+            </div>
+          </div>
+        </article>
+
+        <aside className="article-toc-rail">
+          <TableOfContents headings={headings} />
+        </aside>
+      </section>
+
+      {/* 移除底部 PostMetrics footer 爱心 */}
 
       <SectionDivider />
 

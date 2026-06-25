@@ -81,3 +81,53 @@ export async function recordPostLike(request: NextRequest, postId: string): Prom
   }
 }
 
+const REACTION_EMOJIS = ['👍', '❤️', '😂', '👏', '🤔'] as const
+
+export async function recordPostReaction(
+  request: NextRequest,
+  postId: string,
+  emoji: string,
+): Promise<PostInteractionResult> {
+  if (!isSupabaseAdminConfigured) {
+    return { ok: false, body: { message: 'Reactions are not configured.' }, status: 503 }
+  }
+
+  if (!uuidPattern.test(postId)) {
+    return { ok: false, body: { message: 'Invalid post id.' }, status: 400 }
+  }
+
+  if (!REACTION_EMOJIS.includes(emoji as (typeof REACTION_EMOJIS)[number])) {
+    return { ok: false, body: { message: 'Invalid emoji.' }, status: 400 }
+  }
+
+  const ipHash = hashRequestValue(getClientIp(request))
+  const userAgentHash = hashRequestValue(request.headers.get('user-agent') || 'unknown')
+  const visitorHash = hashRequestValue(`${ipHash}:${userAgentHash}`)
+  const supabase = createAdminClient()
+
+  const { data, error } = await supabase.rpc('record_post_reaction', {
+    p_post_id: postId,
+    p_emoji: emoji,
+    p_visitor_hash: visitorHash,
+    p_ip_hash: ipHash,
+    p_user_agent_hash: userAgentHash,
+  })
+
+  if (error) {
+    return { ok: false, body: { message: 'Reaction update failed.' }, status: 500 }
+  }
+
+  const result = Array.isArray(data) ? data[0] : null
+  if (!result) {
+    return { ok: false, body: { message: 'Post not found.' }, status: 404 }
+  }
+
+  return {
+    ok: true,
+    body: {
+      reacted: result.reacted,
+      reactions: (result.reactions as Record<string, number> | null) ?? {},
+    },
+  }
+}
+

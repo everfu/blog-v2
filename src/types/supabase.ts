@@ -143,6 +143,28 @@ export interface Database {
         Update: Record<string, never>
         Relationships: []
       }
+      post_reactions: {
+        Row: {
+          id: string
+          post_id: string
+          emoji: string
+          visitor_hash: string
+          ip_hash: string
+          user_agent_hash: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          post_id: string
+          emoji: string
+          visitor_hash: string
+          ip_hash: string
+          user_agent_hash: string
+          created_at?: string
+        }
+        Update: Record<string, never>
+        Relationships: []
+      }
       post_revisions: {
         Row: {
           id: string
@@ -904,6 +926,19 @@ export interface Database {
           liked: boolean
           view_count: number
           like_count: number
+        }>
+      }
+      record_post_reaction: {
+        Args: {
+          p_post_id: string
+          p_emoji: string
+          p_visitor_hash: string
+          p_ip_hash: string
+          p_user_agent_hash: string
+        }
+        Returns: Array<{
+          reacted: boolean
+          reactions: Json
         }>
       }
       record_comment_like: {

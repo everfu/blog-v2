@@ -15,6 +15,7 @@ export interface Post {
   recent: boolean
   viewCount: number
   likeCount: number
+  reactions: Record<string, number>
   content: string
   status: PostStatus
   updatedAt: string
@@ -33,6 +34,7 @@ export interface PostMetadata {
   recent: boolean
   viewCount: number
   likeCount: number
+  reactions: Record<string, number>
   status: PostStatus
   updatedAt: string
 }
