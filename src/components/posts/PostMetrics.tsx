@@ -6,6 +6,8 @@ interface PostMetricsProps {
   postId: string
   initialViewCount: number
   initialLikeCount: number
+  initialCommentCount?: number
+  readonlyMetric?: 'like' | 'comment'
   variant?: 'compact' | 'footer'
   readonly?: boolean
 }
@@ -30,6 +32,8 @@ export default function PostMetrics({
   postId,
   initialViewCount,
   initialLikeCount,
+  initialCommentCount = 0,
+  readonlyMetric = 'like',
   variant = 'compact',
   readonly = false,
 }: PostMetricsProps) {
@@ -153,8 +157,17 @@ export default function PostMetrics({
           {viewCount}
         </span>
         <span className={metaBadgeClass}>
-          <span className={`${state === 'liked' ? 'i-lucide-heart text-red-500' : 'i-lucide-heart'} ${metaIconClass}`} />
-          {likeCount}
+          {readonlyMetric === 'comment' ? (
+            <>
+              <span className={`i-lucide-message-circle ${metaIconClass}`} />
+              {initialCommentCount}
+            </>
+          ) : (
+            <>
+              <span className={`${state === 'liked' ? 'i-lucide-heart text-red-500' : 'i-lucide-heart'} ${metaIconClass}`} />
+              {likeCount}
+            </>
+          )}
         </span>
       </div>
     )

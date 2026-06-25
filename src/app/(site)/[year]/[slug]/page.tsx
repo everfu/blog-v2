@@ -6,6 +6,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import remarkGfm from 'remark-gfm'
 import remarkDirective from 'remark-directive'
 import { getAllPosts, getPostBySlug, getPostHref } from '@/server/posts/adapters/page'
+import { getCommentsByPath } from '@/features/comments/public'
 import { remarkCallout } from '@/lib/remarkCallout'
 import { extractHeadings } from '@/lib/extractHeadings'
 import { formatDate, getReadingTime, getCategoryColorWithBorder } from '@/lib/utils'
@@ -89,6 +90,8 @@ export default async function PostPage({ params }: PageProps) {
   const dateStr = formatDate(post.date)
   const readingTime = getReadingTime(post.content)
   const headings = extractHeadings(post.content)
+  const postHref = getPostHref(post)
+  const commentCount = (await getCommentsByPath(postHref)).length
 
   return (
     <div className="space-y-0 site-shell--article">
@@ -129,6 +132,8 @@ export default async function PostPage({ params }: PageProps) {
               postId={post.id}
               initialViewCount={post.viewCount}
               initialLikeCount={post.likeCount}
+              initialCommentCount={commentCount}
+              readonlyMetric="comment"
               readonly
             />
           </div>
@@ -235,7 +240,7 @@ export default async function PostPage({ params }: PageProps) {
         </section>
       )}
 
-      <Comment path={getPostHref(post)} postId={post.id} />
+      <Comment path={postHref} postId={post.id} />
     </div>
   )
 }

@@ -22,7 +22,9 @@ revoke all on function private.is_admin() from public;
 grant usage on schema private to authenticated;
 grant execute on function private.is_admin() to authenticated;
 
-create or replace function private.admin_passkey_state(p_email text)
+drop function if exists private.admin_passkey_state(text);
+
+create or replace function public.admin_passkey_state(p_email text)
 returns table(user_id uuid, passkey_count bigint)
 language sql
 stable
@@ -38,8 +40,8 @@ as $$
   limit 1;
 $$;
 
-revoke all on function private.admin_passkey_state(text) from public, anon, authenticated;
-grant execute on function private.admin_passkey_state(text) to service_role;
+revoke all on function public.admin_passkey_state(text) from public, anon, authenticated;
+grant execute on function public.admin_passkey_state(text) to service_role;
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -725,19 +727,33 @@ grant insert, update on public.friend_application_settings to authenticated;
 grant insert, update, delete on public.home_sections to authenticated;
 grant select on public.home_sections to anon, authenticated;
 
+drop policy if exists "own profile is readable" on public.profiles;
 create policy "own profile is readable" on public.profiles for select to authenticated using ((select auth.uid()) = id);
+drop policy if exists "anon published posts are readable" on public.posts;
 create policy "anon published posts are readable" on public.posts for select to anon using (status = 'published');
+drop policy if exists "authenticated posts are readable" on public.posts;
 create policy "authenticated posts are readable" on public.posts for select to authenticated using (status = 'published' or (select private.is_admin()));
+drop policy if exists "admin posts are insertable" on public.posts;
 create policy "admin posts are insertable" on public.posts for insert to authenticated with check ((select private.is_admin()));
+drop policy if exists "admin posts are editable" on public.posts;
 create policy "admin posts are editable" on public.posts for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "anon approved comments are readable" on public.comments;
 create policy "anon approved comments are readable" on public.comments for select to anon using (status = 'approved');
+drop policy if exists "authenticated comments are readable" on public.comments;
 create policy "authenticated comments are readable" on public.comments for select to authenticated using (status = 'approved' or (select private.is_admin()));
+drop policy if exists "comments are insertable" on public.comments;
 create policy "comments are insertable" on public.comments for insert to anon, authenticated with check (true);
+drop policy if exists "admin comments are editable" on public.comments;
 create policy "admin comments are editable" on public.comments for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "admin post revisions are readable" on public.post_revisions;
 create policy "admin post revisions are readable" on public.post_revisions for select to authenticated using ((select private.is_admin()));
+drop policy if exists "admin post revisions are insertable" on public.post_revisions;
 create policy "admin post revisions are insertable" on public.post_revisions for insert to authenticated with check ((select private.is_admin()));
+drop policy if exists "admin audit logs are readable" on public.admin_audit_logs;
 create policy "admin audit logs are readable" on public.admin_audit_logs for select to authenticated using ((select private.is_admin()));
+drop policy if exists "admin audit logs are insertable" on public.admin_audit_logs;
 create policy "admin audit logs are insertable" on public.admin_audit_logs for insert to authenticated with check ((select private.is_admin()));
+drop policy if exists "approved comment attachments are readable" on public.comment_attachments;
 create policy "approved comment attachments are readable" on public.comment_attachments for select to anon, authenticated using (
   status = 'approved'
   and exists (
@@ -746,41 +762,77 @@ create policy "approved comment attachments are readable" on public.comment_atta
       and comments.status = 'approved'
   )
 );
+drop policy if exists "admin comment attachments are readable" on public.comment_attachments;
 create policy "admin comment attachments are readable" on public.comment_attachments for select to authenticated using ((select private.is_admin()));
+drop policy if exists "users can create pending comment attachments" on public.comment_attachments;
 create policy "users can create pending comment attachments" on public.comment_attachments for insert to authenticated with check ((select auth.uid()) = user_id and status = 'pending');
+drop policy if exists "users can update own pending comment attachments" on public.comment_attachments;
 create policy "users can update own pending comment attachments" on public.comment_attachments for update to authenticated using ((select auth.uid()) = user_id and status = 'pending') with check ((select auth.uid()) = user_id and status = 'pending');
+drop policy if exists "comment settings are readable" on public.comment_settings;
 create policy "comment settings are readable" on public.comment_settings for select to anon, authenticated using (key in ('emoji_packs', 'avatar_provider'));
+drop policy if exists "admin comment settings are readable" on public.comment_settings;
 create policy "admin comment settings are readable" on public.comment_settings for select to authenticated using ((select private.is_admin()));
+drop policy if exists "admin comment settings are insertable" on public.comment_settings;
 create policy "admin comment settings are insertable" on public.comment_settings for insert to authenticated with check ((select private.is_admin()));
+drop policy if exists "admin comment settings are editable" on public.comment_settings;
 create policy "admin comment settings are editable" on public.comment_settings for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "admin comment moderation events are readable" on public.comment_moderation_events;
 create policy "admin comment moderation events are readable" on public.comment_moderation_events for select to authenticated using ((select private.is_admin()));
+drop policy if exists "admin comment moderation events are insertable" on public.comment_moderation_events;
 create policy "admin comment moderation events are insertable" on public.comment_moderation_events for insert to authenticated with check ((select private.is_admin()));
+drop policy if exists "admin comment moderation rules are readable" on public.comment_moderation_rules;
 create policy "admin comment moderation rules are readable" on public.comment_moderation_rules for select to authenticated using ((select private.is_admin()));
+drop policy if exists "admin comment moderation rules are insertable" on public.comment_moderation_rules;
 create policy "admin comment moderation rules are insertable" on public.comment_moderation_rules for insert to authenticated with check ((select private.is_admin()));
+drop policy if exists "admin comment moderation rules are editable" on public.comment_moderation_rules;
 create policy "admin comment moderation rules are editable" on public.comment_moderation_rules for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "admin comment moderation rules are deletable" on public.comment_moderation_rules;
 create policy "admin comment moderation rules are deletable" on public.comment_moderation_rules for delete to authenticated using ((select private.is_admin()));
+drop policy if exists "published watched items are readable" on public.watched_items;
 create policy "published watched items are readable" on public.watched_items for select to anon, authenticated using (status = 'published');
+drop policy if exists "admin watched items are writable" on public.watched_items;
 create policy "admin watched items are writable" on public.watched_items for all to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "published album categories are readable" on public.album_categories;
 create policy "published album categories are readable" on public.album_categories for select to anon, authenticated using (status = 'published');
+drop policy if exists "admin album categories are writable" on public.album_categories;
 create policy "admin album categories are writable" on public.album_categories for all to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "published album photos are readable" on public.album_photos;
 create policy "published album photos are readable" on public.album_photos for select to anon, authenticated using (status = 'published');
+drop policy if exists "admin album photos are writable" on public.album_photos;
 create policy "admin album photos are writable" on public.album_photos for all to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "published stack categories are readable" on public.stack_categories;
 create policy "published stack categories are readable" on public.stack_categories for select to anon, authenticated using (status = 'published');
+drop policy if exists "admin stack categories are writable" on public.stack_categories;
 create policy "admin stack categories are writable" on public.stack_categories for all to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "published stack items are readable" on public.stack_items;
 create policy "published stack items are readable" on public.stack_items for select to anon, authenticated using (status = 'published');
+drop policy if exists "admin stack items are writable" on public.stack_items;
 create policy "admin stack items are writable" on public.stack_items for all to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "published friend groups are readable" on public.friend_groups;
 create policy "published friend groups are readable" on public.friend_groups for select to anon, authenticated using (status = 'published');
+drop policy if exists "admin friend groups are writable" on public.friend_groups;
 create policy "admin friend groups are writable" on public.friend_groups for all to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "published friend links are readable" on public.friend_links;
 create policy "published friend links are readable" on public.friend_links for select to anon, authenticated using (status = 'published');
+drop policy if exists "admin friend links are writable" on public.friend_links;
 create policy "admin friend links are writable" on public.friend_links for all to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "friend feed snapshots are readable" on public.friend_feed_snapshots;
 create policy "friend feed snapshots are readable" on public.friend_feed_snapshots for select to anon, authenticated using (true);
+drop policy if exists "admin friend feed snapshots are writable" on public.friend_feed_snapshots;
 create policy "admin friend feed snapshots are writable" on public.friend_feed_snapshots for all to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "friend application settings are readable" on public.friend_application_settings;
 create policy "friend application settings are readable" on public.friend_application_settings for select to anon, authenticated using (true);
+drop policy if exists "admin friend application settings are insertable" on public.friend_application_settings;
 create policy "admin friend application settings are insertable" on public.friend_application_settings for insert to authenticated with check ((select private.is_admin()));
+drop policy if exists "admin friend application settings are editable" on public.friend_application_settings;
 create policy "admin friend application settings are editable" on public.friend_application_settings for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "admin friend link applications are readable" on public.friend_link_applications;
 create policy "admin friend link applications are readable" on public.friend_link_applications for select to authenticated using ((select private.is_admin()));
+drop policy if exists "admin friend link applications are editable" on public.friend_link_applications;
 create policy "admin friend link applications are editable" on public.friend_link_applications for update to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
+drop policy if exists "enabled home sections are readable" on public.home_sections;
 create policy "enabled home sections are readable" on public.home_sections for select to anon, authenticated using (enabled = true);
+drop policy if exists "admin home sections are writable" on public.home_sections;
 create policy "admin home sections are writable" on public.home_sections for all to authenticated using ((select private.is_admin())) with check ((select private.is_admin()));
 
 insert into public.comment_settings (key, value)
@@ -814,14 +866,17 @@ set
   file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
 
+drop policy if exists "users can upload own comment images" on storage.objects;
 create policy "users can upload own comment images" on storage.objects for insert to authenticated with check (
   bucket_id = 'comment-images'
   and owner = (select auth.uid())
 );
+drop policy if exists "users can read own comment images" on storage.objects;
 create policy "users can read own comment images" on storage.objects for select to authenticated using (
   bucket_id = 'comment-images'
   and owner = (select auth.uid())
 );
+drop policy if exists "approved comment images are readable" on storage.objects;
 create policy "approved comment images are readable" on storage.objects for select to anon, authenticated using (
   bucket_id = 'comment-images'
   and exists (
@@ -833,9 +888,13 @@ create policy "approved comment images are readable" on storage.objects for sele
       and comments.status = 'approved'
   )
 );
+drop policy if exists "public site media is readable" on storage.objects;
 create policy "public site media is readable" on storage.objects for select to anon, authenticated using (bucket_id = 'site-media');
+drop policy if exists "admin site media is insertable" on storage.objects;
 create policy "admin site media is insertable" on storage.objects for insert to authenticated with check (bucket_id = 'site-media' and (select private.is_admin()));
+drop policy if exists "admin site media is editable" on storage.objects;
 create policy "admin site media is editable" on storage.objects for update to authenticated using (bucket_id = 'site-media' and (select private.is_admin())) with check (bucket_id = 'site-media' and (select private.is_admin()));
+drop policy if exists "admin site media is deletable" on storage.objects;
 create policy "admin site media is deletable" on storage.objects for delete to authenticated using (bucket_id = 'site-media' and (select private.is_admin()));
 
 revoke all on function public.increment_post_view(uuid) from public;
