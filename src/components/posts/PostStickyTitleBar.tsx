@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 interface PostStickyTitleBarProps {
   title: string
@@ -18,6 +19,7 @@ function clamp(value: number, min: number, max: number) {
 }
 
 export default function PostStickyTitleBar({ title, backHref }: PostStickyTitleBarProps) {
+  const [mounted, setMounted] = useState(false)
   const [state, setState] = useState<StickyTitleState>({
     visible: false,
     progress: 0,
@@ -56,6 +58,8 @@ export default function PostStickyTitleBar({ title, backHref }: PostStickyTitleB
   useEffect(() => {
     let frame = 0
 
+    setMounted(true)
+
     function requestUpdate() {
       if (frame) return
       frame = window.requestAnimationFrame(() => {
@@ -75,7 +79,7 @@ export default function PostStickyTitleBar({ title, backHref }: PostStickyTitleB
     }
   }, [update])
 
-  return (
+  const bar = (
     <div
       className={`post-sticky-title-bar ${state.visible ? 'is-visible' : ''}`}
       aria-hidden={!state.visible}
@@ -98,4 +102,8 @@ export default function PostStickyTitleBar({ title, backHref }: PostStickyTitleB
       </div>
     </div>
   )
+
+  if (!mounted) return null
+
+  return createPortal(bar, document.body)
 }

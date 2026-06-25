@@ -11,7 +11,7 @@ import { extractHeadings } from '@/lib/extractHeadings'
 import { formatDate, getReadingTime, getCategoryColorWithBorder } from '@/lib/utils'
 import { SectionDivider } from '@/components/common'
 import { mdxComponents } from '@/components/mdx'
-import { PostMetrics, PostReactions, TableOfContents } from '@/components/posts'
+import { PostMetrics, PostReactions, PostStickyTitleBar, TableOfContents } from '@/components/posts'
 import { Comment } from '@/components/ui'
 import { siteConfig } from '@/config/site'
 import { absoluteUrl, toIsoDate } from '@/config/site-utils'
@@ -92,6 +92,8 @@ export default async function PostPage({ params }: PageProps) {
 
   return (
     <div className="space-y-0 site-shell--article">
+      <PostStickyTitleBar title={post.title} backHref="/posts" />
+
       <section>
         <div className="mx-4 md:mx-8 py-4">
           <Link 
@@ -106,7 +108,7 @@ export default async function PostPage({ params }: PageProps) {
       </section>
 
       {/* Article Header */}
-      <section>
+      <section id="article-header">
         <div className="mx-4 md:mx-8 py-4">
           {/* Meta Info Row */}
           <div className="flex flex-wrap items-center gap-3 text-xs text-muted mb-4">
@@ -168,7 +170,7 @@ export default async function PostPage({ params }: PageProps) {
       </section>
 
       {/* Article Content - desktop side rails bind to the content grid */}
-      <section className="article-content-shell">
+      <section id="article-content" className="article-content-shell">
         <aside
           aria-label="文章表情反应"
           className="article-reaction-rail"

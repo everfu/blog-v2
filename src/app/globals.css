@@ -274,6 +274,93 @@ a:hover {
   display: none;
 }
 
+.post-sticky-title-bar {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  z-index: 60;
+  width: 100%;
+  max-width: var(--outer-container-width);
+  height: 3rem;
+  transform: translate(-50%, -100%);
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-background) 88%, transparent);
+  color: var(--color-foreground);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+  backdrop-filter: blur(14px);
+}
+
+.post-sticky-title-bar.is-visible {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.post-sticky-title-inner {
+  display: grid;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
+  gap: 0.5rem;
+  align-items: center;
+  height: 100%;
+  padding: 0 0.5rem;
+}
+
+.post-sticky-title-back {
+  display: inline-flex;
+  width: 2.25rem;
+  height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted);
+  transition: color 160ms ease, opacity 160ms ease;
+}
+
+.post-sticky-title-back:hover {
+  color: var(--color-foreground);
+  opacity: 1;
+}
+
+.post-sticky-title-text {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--color-foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.post-sticky-title-progress {
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 1px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.post-sticky-title-progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--color-foreground);
+  transform-origin: left center;
+  transition: transform 80ms linear;
+}
+
+@media (max-width: 780px) {
+  .post-sticky-title-bar {
+    width: calc(100vw - 2rem);
+    min-width: 320px;
+  }
+}
+
 @media (min-width: 1280px) {
   .article-content-shell {
     width: var(--article-shell-width);
@@ -370,6 +457,7 @@ a:hover {
 
 .article-toc {
   display: none;
+  flex-direction: column;
 }
 
 .article-toc-kicker {
@@ -450,6 +538,61 @@ a:hover {
   font-weight: 600;
 }
 
+.article-toc-progress-pill {
+  position: relative;
+  display: inline-flex;
+  width: fit-content;
+  min-width: 3.75rem;
+  height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  line-height: 1;
+  transition: border-color 160ms ease, color 160ms ease;
+}
+
+.article-toc-progress-pill:hover,
+.article-toc-progress-pill:focus-visible {
+  border-color: color-mix(in srgb, var(--color-foreground) 42%, transparent);
+  color: var(--color-foreground);
+}
+
+.article-toc-progress-value,
+.article-toc-progress-top {
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.article-toc-progress-top {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  opacity: 0;
+  transform: translateY(0.45rem);
+  white-space: nowrap;
+}
+
+.article-toc-progress-pill:hover .article-toc-progress-value,
+.article-toc-progress-pill:focus-visible .article-toc-progress-value {
+  opacity: 0;
+  transform: translateY(-0.45rem);
+}
+
+.article-toc-progress-pill:hover .article-toc-progress-top,
+.article-toc-progress-pill:focus-visible .article-toc-progress-top {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 @media (min-width: 1280px) {
   .article-reaction-rail .post-reactions {
     width: var(--article-reaction-rail-width);
@@ -476,7 +619,7 @@ a:hover {
   }
 
   .article-toc-rail .article-toc {
-    display: block;
+    display: flex;
     padding-top: 0.35rem;
   }
 }

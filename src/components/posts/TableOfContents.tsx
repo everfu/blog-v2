@@ -15,6 +15,10 @@ interface TocTrack {
   points: Record<string, { x: number; y: number }>
 }
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value))
+}
+
 export default function TableOfContents({ headings }: TableOfContentsProps) {
   const tocHeadings = useMemo(
     () => headings.filter(heading => heading.level === 2 || heading.level === 3),
@@ -22,6 +26,7 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
   )
   const [activeId, setActiveId] = useState<string>('')
   const [track, setTrack] = useState<TocTrack | null>(null)
+  const [progress, setProgress] = useState(0)
   const observerRef = useRef<IntersectionObserver | null>(null)
   const listRef = useRef<HTMLUListElement | null>(null)
 
@@ -119,6 +124,41 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
     }
   }, [measureTrack])
 
+  const updateProgress = useCallback(() => {
+    const content = document.getElementById('article-content')
+    if (!content) return
+
+    const scrollY = window.scrollY || document.documentElement.scrollTop
+    const contentStart = content.offsetTop
+    const contentEnd = content.offsetTop + content.offsetHeight - window.innerHeight
+    const readableDistance = Math.max(1, contentEnd - contentStart)
+    const next = clamp((scrollY - contentStart) / readableDistance, 0, 1)
+
+    setProgress(current => (Math.abs(current - next) < 0.002 ? current : next))
+  }, [])
+
+  useEffect(() => {
+    let frame = 0
+
+    function requestUpdate() {
+      if (frame) return
+      frame = window.requestAnimationFrame(() => {
+        frame = 0
+        updateProgress()
+      })
+    }
+
+    updateProgress()
+    window.addEventListener('scroll', requestUpdate, { passive: true })
+    window.addEventListener('resize', requestUpdate)
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', requestUpdate)
+      window.removeEventListener('resize', requestUpdate)
+    }
+  }, [updateProgress])
+
   const onClick = useCallback(
     (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
       e.preventDefault()
@@ -131,7 +171,13 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
     [],
   )
 
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
   if (tocHeadings.length === 0) return null
+
+  const progressPercent = Math.round(progress * 100)
 
   return (
     <nav
@@ -183,6 +229,18 @@ export default function TableOfContents({ headings }: TableOfContentsProps) {
           })}
         </ul>
       </div>
+      <button
+        type="button"
+        className="article-toc-progress-pill"
+        onClick={scrollToTop}
+        aria-label={`阅读进度 ${progressPercent}%，回到顶部`}
+      >
+        <span className="article-toc-progress-value">{progressPercent}%</span>
+        <span className="article-toc-progress-top">
+          <span className="i-lucide-arrow-up text-xs" aria-hidden />
+          顶部
+        </span>
+      </button>
     </nav>
   )
 }
