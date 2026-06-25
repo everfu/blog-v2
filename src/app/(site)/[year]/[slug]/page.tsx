@@ -25,6 +25,14 @@ interface PageProps {
 
 export const revalidate = 300
 
+export async function generateStaticParams() {
+  const posts = await getAllPosts()
+  return posts.map(post => ({
+    year: post.year,
+    slug: post.slug,
+  }))
+}
+
 export async function generateMetadata({ params }: PageProps) {
   const { year, slug } = await params
   const post = await getPostBySlug(year, slug)
