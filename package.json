@@ -1,5 +1,5 @@
 {
-  "name": "blog",
+  "name": "blog-v2",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "eslint --cache --cache-location .cache/eslint/ src middleware.ts mdx-components.tsx next.config.js eslint.config.mjs uno.config.ts",
     "typecheck": "tsc --noEmit --pretty false",
-    "check": "pnpm typecheck && pnpm lint",
-    "migrate:stack-icons": "node --env-file=.env.local scripts/migrate-stack-skill-icons.mjs"
+    "check": "pnpm typecheck && pnpm lint"
   },
   "dependencies": {
     "@supabase/ssr": "catalog:supabase",
