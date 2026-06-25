@@ -1,4 +1,4 @@
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/common'
 import { getAlbumThumbnailImageSrc } from '@/features/album'
 import type { AlbumCategory, AlbumPhoto } from '@/types'
 
@@ -32,13 +32,14 @@ export default function AlbumThumbnailStrip({
             aria-label={`选择照片 ${photo.label || `第 ${index + 1} 张`}`}
             aria-pressed={isSelected}
           >
-            <Image
+            <OptimizedImage
               src={imageSrc}
               alt={photo.label || category.label}
               fill
               sizes="96px"
               className="object-contain p-0.5"
               loading={index < 8 ? 'eager' : 'lazy'}
+              qiniuQuality={72}
             />
             <span className="album-detail-label absolute bottom-1 left-1.5 px-1 font-mono text-[10px] text-foreground shadow-sm backdrop-blur">
               {index + 1}

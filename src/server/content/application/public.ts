@@ -13,6 +13,23 @@ function ensureAdminClient() {
   return createAdminClient()
 }
 
+function groupByKey<T, K extends string | number>(items: T[], getKey: (item: T) => K | null | undefined) {
+  const groups = new Map<K, T[]>()
+
+  for (const item of items) {
+    const key = getKey(item)
+    if (key == null) continue
+    const group = groups.get(key)
+    if (group) {
+      group.push(item)
+    } else {
+      groups.set(key, [item])
+    }
+  }
+
+  return groups
+}
+
 async function fetchHomeSections(): Promise<HomeSection[]> {
   const supabase = ensureAdminClient()
   if (!supabase) return []
@@ -82,12 +99,13 @@ async function fetchAlbumCategories(): Promise<AlbumCategory[]> {
 
   if (categoriesError || !categories) return []
 
+  const photosByCategoryId = groupByKey(photos || [], photo => photo.category_id)
+
   return categories.map(category => ({
     name: category.slug,
     label: category.label,
     image: category.cover_image_url || '',
-    list: (photos || [])
-      .filter(photo => photo.category_id === category.id)
+    list: (photosByCategoryId.get(category.id) || [])
       .map(photo => ({
         label: photo.label || undefined,
         image: photo.image_url,
@@ -131,14 +149,18 @@ async function fetchStack() {
       wishlist: item.wishlist,
     }))
 
+  const softwareItemsByCategoryId = groupByKey(
+    (items || []).filter(item => item.kind === 'software'),
+    item => item.category_id
+  )
+
   const softwareCategories: SoftwareCategory[] = (categories || [])
     .filter(category => category.kind === 'software')
     .map(category => ({
       slug: category.slug,
       name: category.name,
       description: category.description || undefined,
-      items: (items || [])
-        .filter(item => item.kind === 'software' && item.category_id === category.id)
+      items: (softwareItemsByCategoryId.get(category.id) || [])
         .map<SoftwareCategory['items'][number]>(item => ({
           name: item.name,
           icon: item.icon || undefined,
@@ -171,11 +193,12 @@ async function fetchFeedGroups(): Promise<FeedGroup[]> {
 
   if (groupsError || !groups) return []
 
+  const linksByGroupId = groupByKey(links || [], link => link.group_id)
+
   return groups.map(group => ({
     name: group.name,
     desc: group.description || undefined,
-    entries: (links || [])
-      .filter(link => link.group_id === group.id)
+    entries: (linksByGroupId.get(group.id) || [])
       .map<FeedEntry>(link => ({
         author: link.author,
         sitenick: link.sitenick || undefined,

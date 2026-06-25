@@ -50,3 +50,17 @@ export async function getCommentsByPath(
     isOwnPending: comment.status === 'pending' && Boolean(viewer.viewerTokenHash && comment.viewer_token_hash === viewer.viewerTokenHash),
   })))
 }
+
+export async function getApprovedCommentCountByPath(pagePath: string): Promise<number> {
+  if (!isSupabaseConfigured || !isSupabaseAdminConfigured) return 0
+
+  const supabase = createAdminClient()
+  const { count, error } = await supabase
+    .from('comments')
+    .select('id', { count: 'exact', head: true })
+    .eq('page_path', pagePath)
+    .eq('status', 'approved')
+
+  if (error) return 0
+  return count || 0
+}

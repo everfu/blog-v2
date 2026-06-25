@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useState } from 'react'
 import type { SoftwareItem } from '@/types'
 import { cn } from '@/lib/utils'
+import { OptimizedImage } from '@/components/common'
 
 interface SoftwareCardProps {
   item: SoftwareItem
@@ -60,7 +61,7 @@ function SkillIcon({ name }: { name: string }) {
 
 function ItemIcon({ icon, image, name }: Pick<SoftwareItem, 'icon' | 'image' | 'name'>) {
   if (icon) return <SkillIcon name={icon} />
-  if (image) return <Image src={image} alt={name} fill sizes="40px" className="object-cover rounded" />
+  if (image) return <OptimizedImage src={image} alt={name} fill sizes="40px" className="object-cover rounded" qiniuQuality={72} />
   return <IconFallback />
 }
 

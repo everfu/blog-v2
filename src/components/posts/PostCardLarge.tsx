@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import type { PostMetadata } from '@/server/posts/contracts/types'
 import { getPostHref } from '@/server/posts/contracts/routes'
 import { formatDate } from '@/lib/utils'
+import { OptimizedImage } from '@/components/common'
 import PostStats from './PostStats'
 
 interface PostCardLargeProps {
@@ -37,12 +37,13 @@ export default function PostCardLarge({ post }: PostCardLargeProps) {
         <div className="flex items-center justify-center px-6 pb-7 md:w-[48%] md:px-6 md:py-8">
           <div className="relative min-h-[160px] w-full overflow-hidden bg-background aspect-[16/9]">
             {post.cover ? (
-              <Image
+              <OptimizedImage
                 src={post.cover} 
                 alt={post.title}
                 fill
                 sizes="(max-width: 768px) 100vw, 50vw"
                 unoptimized={post.cover.endsWith('.gif')}
+                qiniuQuality={78}
                 className="object-cover"
               />
             ) : (

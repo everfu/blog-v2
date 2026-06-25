@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { HardwareItem } from '@/types'
 import { cn } from '@/lib/utils'
+import { getBackgroundImageUrl } from '@/lib/images/qiniu'
 
 interface HardwareCardProps {
   item: HardwareItem
@@ -9,6 +10,8 @@ interface HardwareCardProps {
 const CARD_CLASS = 'card group overflow-hidden relative'
 
 export default function HardwareCard({ item }: HardwareCardProps) {
+  const productImage = item.image ? getBackgroundImageUrl(item.image, 480) : undefined
+
   const content = (
     <div className="hardware-card relative w-full aspect-[4/3] bg-card overflow-hidden flex flex-col">
       <div className="hardware-overlay"></div>
@@ -54,12 +57,12 @@ export default function HardwareCard({ item }: HardwareCardProps) {
       
       {/* 产品图片 - 居中，移动端120x120，桌面端180x180 */}
       <div className="flex-1 flex items-center justify-center relative z-10">
-        {item.image ? (
+        {productImage ? (
           <figure 
             role="img"
             aria-label={item.name}
             className="w-[120px] h-[120px] md:w-[180px] md:h-[180px] bg-contain bg-center bg-no-repeat group-hover:scale-105 transition-transform duration-300"
-            style={{ backgroundImage: `url(${item.image})` }}
+            style={{ backgroundImage: `url(${productImage})` }}
           />
         ) : (
           <span className="i-lucide-image text-3xl md:text-4xl opacity-20 text-muted" />

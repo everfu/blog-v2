@@ -1,4 +1,5 @@
 import type { WatchedItem } from '@/types'
+import { getBackgroundImageUrl } from '@/lib/images/qiniu'
 
 interface WatchedCardProps {
   item: WatchedItem
@@ -35,6 +36,8 @@ function StarRating({ rating, variant = 'default' }: { rating: number; variant?:
 
 export default function WatchedCard({ item }: WatchedCardProps) {
   const details = `${item.year} / ${item.country} / ${item.genre} / ${item.director}`
+  const mobileImage = item.image ? getBackgroundImageUrl(item.image, 640) : undefined
+  const posterImage = item.image ? getBackgroundImageUrl(item.image, 240) : undefined
 
   return (
     <div className="card group overflow-hidden">
@@ -42,10 +45,10 @@ export default function WatchedCard({ item }: WatchedCardProps) {
       <div 
         className="md:hidden relative min-h-[200px] p-4 flex flex-col justify-end"
         style={{
-          backgroundImage: item.image ? `linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%), url(${item.image})` : 'none',
+          backgroundImage: mobileImage ? `linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%), url(${mobileImage})` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundColor: item.image ? 'transparent' : 'var(--color-muted)'
+          backgroundColor: mobileImage ? 'transparent' : 'var(--color-muted)'
         }}
       >
         {!item.image && (
@@ -69,8 +72,8 @@ export default function WatchedCard({ item }: WatchedCardProps) {
       {/* 桌面端：横向布局 */}
       <div className="hidden md:flex gap-4 p-4">
         <div className="w-24 h-36 bg-muted flex-shrink-0 flex items-center justify-center overflow-hidden">
-          {item.image ? (
-            <figure role="img" aria-label={item.title} className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${item.image})` }} />
+          {posterImage ? (
+            <figure role="img" aria-label={item.title} className="w-full h-full bg-cover bg-center" style={{ backgroundImage: `url(${posterImage})` }} />
           ) : (
             <span className="i-lucide-film text-3xl opacity-20 text-muted" />
           )}

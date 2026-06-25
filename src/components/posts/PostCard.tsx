@@ -2,6 +2,7 @@ import Link from 'next/link'
 import type { PostMetadata } from '@/server/posts/contracts/types'
 import { getPostHref } from '@/server/posts/contracts/routes'
 import { formatDate } from '@/lib/utils'
+import { getBackgroundImageUrl } from '@/lib/images/qiniu'
 import PostStats from './PostStats'
 
 interface PostCardProps {
@@ -10,13 +11,14 @@ interface PostCardProps {
 
 export default function PostCard({ post }: PostCardProps) {
   const dateStr = formatDate(post.date)
+  const coverImage = post.cover ? getBackgroundImageUrl(post.cover, 480) : undefined
 
   return (
     <Link href={getPostHref(post)} className="block">
       <article 
         className="group card p-5 min-h-[110px] flex flex-col relative overflow-hidden"
         style={{
-          backgroundImage: post.cover ? `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${post.cover})` : 'none',
+          backgroundImage: coverImage ? `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${coverImage})` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'

@@ -1,6 +1,6 @@
 import type { AlbumCategory } from '@/types'
 import { cn } from '@/lib/utils'
-import Image from 'next/image'
+import { OptimizedImage } from '@/components/common'
 
 interface AlbumCardProps {
   category: AlbumCategory
@@ -28,12 +28,13 @@ export default function AlbumCard({ category, index = 0, onClick, onHover, isBlu
     >
       {category.image ? (
         <div className="absolute inset-0 w-full h-full">
-          <Image
+          <OptimizedImage
             src={category.image}
             alt={category.label}
             fill
             sizes="(max-width: 640px) calc(100vw - 2rem), (max-width: 780px) calc(50vw - 2rem), 340px"
             priority={index < 2}
+            qiniuQuality={76}
             className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
           />
         </div>
