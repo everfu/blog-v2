@@ -1,0 +1,65 @@
+packages:
+  - .
+
+catalogs:
+  core:
+    next: 16.2.6
+    react: 19.2.7
+    react-dom: 19.2.7
+
+  ui:
+    class-variance-authority: ^0.7.1
+    lucide-react: ^1.20.0
+    next-themes: ^0.4.6
+    radix-ui: ^1.6.0
+    tailwind-merge: ^3.6.0
+    yet-another-react-lightbox: ^3.32.0
+
+  utils:
+    clsx: ^2.1.1
+    date-fns: ^4.4.0
+    exifr: ^7.1.3
+    fast-xml-parser: ^5.9.0
+    zod: ^4.4.3
+
+  content:
+    '@types/mdast': ^4.0.4
+    '@types/mdx': ^2.0.14
+    next-mdx-remote: ^6.0.0
+    react-markdown: ^10.1.0
+    rehype-sanitize: ^6.0.0
+    remark-directive: ^4.0.0
+    remark-gfm: ^4.0.1
+    shiki: ^3.23.0
+    unist-util-visit: ^5.1.0
+
+  supabase:
+    '@supabase/ssr': ^0.12.0
+    '@supabase/supabase-js': ^2.108.2
+
+  services:
+    nodemailer: ^9.0.0
+
+  types:
+    '@types/node': ^20.19.43
+    '@types/nodemailer': ^8.0.1
+    '@types/react': 19.2.16
+    '@types/react-dom': 19.2.3
+
+  tooling:
+    '@eslint/eslintrc': ^3.3.5
+    '@typescript-eslint/eslint-plugin': ^8.61.1
+    '@typescript-eslint/parser': ^8.61.1
+    eslint: ^9.39.4
+    eslint-config-next: ^16.2.9
+    shadcn: ^4.11.0
+    typescript: ^5.9.3
+
+  styles:
+    '@iconify-json/lucide': ^1.2.113
+    '@iconify/json': ^2.2.487
+    '@unocss/postcss': ^66.7.2
+    '@unocss/preset-icons': ^66.7.2
+    '@unocss/reset': ^66.7.2
+    critters: ^0.0.25
+    unocss: ^66.7.2

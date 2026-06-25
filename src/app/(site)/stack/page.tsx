@@ -60,8 +60,8 @@ export default async function StackPage() {
             <div className="mx-4 my-8 md:mx-8">
               {hardwareItems.length > 0 ? (
                 <div className="grid gap-4 md:grid-cols-2 md:gap-5">
-                  {hardwareItems.map((item, index) => (
-                    <HardwareCard key={item.name} item={item} index={index} />
+                  {hardwareItems.map((item) => (
+                    <HardwareCard key={item.name} item={item} />
                   ))}
                 </div>
               ) : (
