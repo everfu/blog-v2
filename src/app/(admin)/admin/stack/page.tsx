@@ -1,5 +1,5 @@
 import { deleteStackItemAction, saveStackCategoryAction, saveStackItemAction } from '@/app/admin/actions'
-import { getAdminStack } from '@/server/content/adapters/page'
+import { getAdminStack } from '@/server/stack/adapters/page'
 import { requireAdminPage } from '@/lib/auth/require-admin'
 import {
   AdminCheckbox,

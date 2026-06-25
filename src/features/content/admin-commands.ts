@@ -1,18 +1,26 @@
 export {
-  approveFriendApplication,
-  deleteAlbumPhoto,
-  deleteFriendLink,
-  deleteStackItem,
   deleteWatchedItem,
-  refreshFriendFeedSnapshots,
+  saveWatchedItem,
+} from '@/server/watched/adapters/actions'
+export {
+  deleteAlbumPhoto,
   saveAlbumCategory,
   saveAlbumPhoto,
+} from '@/server/album/adapters/actions'
+export {
+  deleteStackItem,
+  saveStackCategory,
+  saveStackItem,
+} from '@/server/stack/adapters/actions'
+export {
+  approveFriendApplication,
+  deleteFriendLink,
+  refreshFriendFeedSnapshots,
   saveFriendApplicationSettings,
   saveFriendGroup,
   saveFriendLink,
-  saveHomeSection,
-  saveStackCategory,
-  saveStackItem,
-  saveWatchedItem,
   updateFriendApplicationStatus,
-} from '@/server/content/adapters/actions'
+} from '@/server/friends/adapters/actions'
+export {
+  saveHomeSection,
+} from '@/server/home/adapters/actions'

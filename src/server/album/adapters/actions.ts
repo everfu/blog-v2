@@ -4,7 +4,7 @@ import {
   deleteAlbumPhoto as deleteAlbumPhotoCommand,
   saveAlbumCategory as saveAlbumCategoryCommand,
   saveAlbumPhoto as saveAlbumPhotoCommand,
-} from '@/server/content/application/actions'
+} from '@/server/album/application/actions'
 import type { CurrentAdmin } from '@/lib/auth/admin'
 
 export async function saveAlbumCategory(admin: CurrentAdmin, formData: FormData) {

@@ -12,23 +12,29 @@ import {
   updateCommentSmtpSettings,
 } from '@/server/comments/adapters/actions'
 import {
-  approveFriendApplication,
   deleteAlbumPhoto,
-  deleteFriendLink,
-  deleteStackItem,
-  deleteWatchedItem,
-  refreshFriendFeedSnapshots,
-  saveFriendApplicationSettings,
   saveAlbumCategory,
   saveAlbumPhoto,
-  saveFriendGroup,
-  saveFriendLink,
-  saveHomeSection,
+} from '@/server/album/adapters/actions'
+import {
+  deleteStackItem,
   saveStackCategory,
   saveStackItem,
-  saveWatchedItem,
+} from '@/server/stack/adapters/actions'
+import {
+  approveFriendApplication,
+  deleteFriendLink,
+  refreshFriendFeedSnapshots,
+  saveFriendApplicationSettings,
+  saveFriendGroup,
+  saveFriendLink,
   updateFriendApplicationStatus,
-} from '@/server/content/adapters/actions'
+} from '@/server/friends/adapters/actions'
+import { saveHomeSection } from '@/server/home/adapters/actions'
+import {
+  deleteWatchedItem,
+  saveWatchedItem,
+} from '@/server/watched/adapters/actions'
 import { saveAdminPost } from '@/server/posts/adapters/actions'
 import { deleteAdminMedia, uploadAdminMedia } from '@/server/media/adapters/actions'
 

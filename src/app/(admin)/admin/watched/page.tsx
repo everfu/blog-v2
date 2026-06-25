@@ -1,5 +1,5 @@
 import { deleteWatched, saveWatched } from '@/app/admin/actions'
-import { getAdminWatchedItems } from '@/server/content/adapters/page'
+import { getAdminWatchedItems } from '@/server/watched/adapters/page'
 import { requireAdminPage } from '@/lib/auth/require-admin'
 import {
   AdminCreatePanel,

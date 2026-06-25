@@ -1,6 +1,6 @@
 import { SectionDivider } from '@/components/common'
 import AlbumClient from '@/components/album/AlbumClient'
-import { getAlbumCategories } from '@/server/content/adapters/page'
+import { getAlbumCategories } from '@/server/album/adapters/page'
 
 export const revalidate = 300
 

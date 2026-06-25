@@ -1,9 +1,9 @@
 import Image from 'next/image'
-import { DEFAULT_FRIEND_AVATAR } from '@/features/feeds/utils'
+import { DEFAULT_FRIEND_AVATAR } from '@/server/feeds/application/utils'
 import { SectionDivider } from '@/components/common'
 import { Comment } from '@/components/ui'
 import FriendApplicationForm from '@/components/friends/FriendApplicationForm'
-import { getFeedGroups, getFriendApplicationSettings } from '@/server/content/adapters/page'
+import { getFeedGroups, getFriendApplicationSettings } from '@/server/friends/adapters/page'
 import type { FeedEntry, FeedGroup } from '@/types/feed'
 
 export const metadata = {

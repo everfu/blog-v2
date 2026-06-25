@@ -1,5 +1,5 @@
 import { approveFriendApplicationAction, deleteFriendLinkAction, refreshFriendFeeds, saveFriendApplicationSettingsAction, saveFriendGroupAction, saveFriendLinkAction, updateFriendApplicationStatusAction } from '@/app/admin/actions'
-import { getAdminFriendApplications, getAdminFriends, getFriendApplicationSettings } from '@/server/content/adapters/page'
+import { getAdminFriendApplications, getAdminFriends, getFriendApplicationSettings } from '@/server/friends/adapters/page'
 import { requireAdminPage } from '@/lib/auth/require-admin'
 import { formatDate, formatTimeAgo } from '@/lib/utils'
 import {

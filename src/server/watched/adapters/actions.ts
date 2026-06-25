@@ -3,7 +3,7 @@
 import {
   deleteWatchedItem as deleteWatchedItemCommand,
   saveWatchedItem as saveWatchedItemCommand,
-} from '@/server/content/application/actions'
+} from '@/server/watched/application/actions'
 import type { CurrentAdmin } from '@/lib/auth/admin'
 
 export async function saveWatchedItem(admin: CurrentAdmin, formData: FormData) {

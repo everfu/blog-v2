@@ -1,5 +1,5 @@
 import { deleteAlbumPhotoAction, saveAlbumCategoryAction, saveAlbumPhotoAction } from '@/app/admin/actions'
-import { getAdminAlbum } from '@/server/content/adapters/page'
+import { getAdminAlbum } from '@/server/album/adapters/page'
 import { requireAdminPage } from '@/lib/auth/require-admin'
 import {
   AdminCreatePanel,

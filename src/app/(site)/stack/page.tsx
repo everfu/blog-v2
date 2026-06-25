@@ -1,6 +1,6 @@
 import { SectionDivider } from '@/components/common'
 import { HardwareCard, SoftwareCatalog } from '@/components/stack'
-import { getStack } from '@/server/content/adapters/page'
+import { getStack } from '@/server/stack/adapters/page'
 
 export const revalidate = 300
 

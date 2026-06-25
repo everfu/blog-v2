@@ -1,5 +1,5 @@
 import type { AlbumPhoto } from '@/types'
-import type { PhotoInfoState } from '@/features/album'
+import type { PhotoInfoState } from '@/features/album/photo-info'
 
 interface AlbumInfoPanelProps {
   photo?: AlbumPhoto

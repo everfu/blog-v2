@@ -23,7 +23,7 @@ interface PageProps {
   }>
 }
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 export async function generateMetadata({ params }: PageProps) {
   const { year, slug } = await params
@@ -82,7 +82,6 @@ export default async function PostPage({ params }: PageProps) {
     notFound()
   }
 
-  // 获取下一篇文章
   const currentIndex = allPosts.findIndex(p => p.year === year && p.slug === slug)
   const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null
 
@@ -109,10 +108,8 @@ export default async function PostPage({ params }: PageProps) {
         <SectionDivider />
       </section>
 
-      {/* Article Header */}
       <section id="article-header">
         <div className="mx-4 md:mx-8 py-4">
-          {/* Meta Info Row */}
           <div className="flex flex-wrap items-center gap-3 text-xs text-muted mb-4">
             <span className="inline-flex items-center gap-1">
               <span className="i-lucide-calendar text-[10px]" />
@@ -137,7 +134,6 @@ export default async function PostPage({ params }: PageProps) {
             />
           </div>
 
-          {/* Title and Cover */}
           <div className="flex gap-6">
             <div className="flex-1">
               <h1 
@@ -151,7 +147,6 @@ export default async function PostPage({ params }: PageProps) {
                 </p>
               )}
             </div>
-            {/* Cover Image */}
             {post.cover ? (
               <div className="hidden md:block w-70 h-40 border border-border flex-shrink-0 bg-card overflow-hidden relative">
                 <OptimizedImage
@@ -174,7 +169,6 @@ export default async function PostPage({ params }: PageProps) {
         <SectionDivider />
       </section>
 
-      {/* Article Content - desktop side rails bind to the content grid */}
       <section id="article-content" className="article-content-shell">
         <aside
           aria-label="文章表情反应"
@@ -197,7 +191,6 @@ export default async function PostPage({ params }: PageProps) {
                 },
               }}
             />
-            {/* 移动端：底部 emoji 表情（水平排列） */}
             <div className="xl:hidden mt-8 pt-6 border-t border-border">
               <PostReactions
                 postId={post.id}
@@ -212,11 +205,8 @@ export default async function PostPage({ params }: PageProps) {
         </aside>
       </section>
 
-      {/* 移除底部 PostMetrics footer 爱心 */}
-
       <SectionDivider />
 
-      {/* Next Post Navigation */}
       {nextPost && (
         <section>
           <Link 

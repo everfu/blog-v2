@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { getAlbumDisplayImageSrc, usePhotoInfo } from '@/features/album'
+import { getAlbumDisplayImageSrc } from '@/features/album/image-src'
+import { usePhotoInfo } from '@/features/album/usePhotoInfo'
 import type { AlbumCategory } from '@/types'
 import AlbumEmptyState from './AlbumEmptyState'
 import AlbumInfoPanel from './AlbumInfoPanel'

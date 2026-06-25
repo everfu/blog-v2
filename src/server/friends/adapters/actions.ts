@@ -8,7 +8,7 @@ import {
   saveFriendGroup as saveFriendGroupCommand,
   saveFriendLink as saveFriendLinkCommand,
   updateFriendApplicationStatus as updateFriendApplicationStatusCommand,
-} from '@/server/content/application/actions'
+} from '@/server/friends/application/actions'
 import type { CurrentAdmin } from '@/lib/auth/admin'
 
 export async function saveFriendGroup(admin: CurrentAdmin, formData: FormData) {

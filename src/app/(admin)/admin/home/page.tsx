@@ -1,5 +1,5 @@
 import { saveHomeSectionAction } from '@/app/admin/actions'
-import { getAdminHomeSections } from '@/server/content/adapters/page'
+import { getAdminHomeSections } from '@/server/home/adapters/page'
 import { mergeDefaultHomeSections, parseHeroMetadata, parseListMetadata } from '@/server/home/adapters/page'
 import { requireAdminPage } from '@/lib/auth/require-admin'
 import {

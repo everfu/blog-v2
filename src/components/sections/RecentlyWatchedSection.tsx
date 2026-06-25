@@ -1,6 +1,6 @@
 import { WatchedCard } from '@/components/ui'
 import { SectionDivider } from '@/components/common'
-import { getWatchedItems } from '@/server/content/adapters/page'
+import { getWatchedItems } from '@/server/watched/adapters/page'
 
 export default async function RecentlyWatchedSection({
   title = 'Recently Watched',

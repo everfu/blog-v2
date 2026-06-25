@@ -4,7 +4,7 @@ import {
   deleteStackItem as deleteStackItemCommand,
   saveStackCategory as saveStackCategoryCommand,
   saveStackItem as saveStackItemCommand,
-} from '@/server/content/application/actions'
+} from '@/server/stack/application/actions'
 import type { CurrentAdmin } from '@/lib/auth/admin'
 
 export async function saveStackCategory(admin: CurrentAdmin, formData: FormData) {

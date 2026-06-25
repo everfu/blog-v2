@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FriendItem, FriendsResponse } from '@/types/feed'
-import { DEFAULT_FRIEND_AVATAR } from '@/features/feeds/utils'
+import { DEFAULT_FRIEND_AVATAR } from '@/server/feeds/application/utils'
 import { formatDate } from '@/lib/utils'
 import { siteConfig } from '@/config/site'
 

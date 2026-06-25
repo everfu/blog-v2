@@ -1,5 +1,5 @@
 import { OptimizedImage } from '@/components/common'
-import { getAlbumDisplayImageSrc, getAlbumPreviewImageSrc } from '@/features/album'
+import { getAlbumDisplayImageSrc, getAlbumPreviewImageSrc } from '@/features/album/image-src'
 import type { AlbumCategory, AlbumPhoto } from '@/types'
 
 interface AlbumPhotoViewerProps {

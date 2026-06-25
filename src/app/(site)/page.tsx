@@ -2,7 +2,7 @@ import { SectionDivider } from '@/components/common'
 import HeroSection from '@/components/sections/HeroSection'
 import RecentPostsSection from '@/components/sections/RecentPostsSection'
 import RecentlyWatchedSection from '@/components/sections/RecentlyWatchedSection'
-import { getHomeSections } from '@/server/content/adapters/page'
+import { getHomeSections } from '@/server/home/adapters/page'
 import { mergeDefaultHomeSections, parseListMetadata } from '@/server/home/adapters/page'
 
 export const revalidate = 300

@@ -1,5 +1,5 @@
 import { OptimizedImage } from '@/components/common'
-import { getAlbumThumbnailImageSrc } from '@/features/album'
+import { getAlbumThumbnailImageSrc } from '@/features/album/image-src'
 import type { AlbumCategory, AlbumPhoto } from '@/types'
 
 interface AlbumThumbnailStripProps {

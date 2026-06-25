@@ -1,4 +1,4 @@
-import { atomXsl } from '@/features/feeds/atom-xsl'
+import { atomXsl } from '@/server/feeds/contracts/atom-xsl'
 
 export const revalidate = 3600
 
